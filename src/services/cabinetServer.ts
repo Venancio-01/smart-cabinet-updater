@@ -3,33 +3,34 @@ import { cabinetSSHConfig, serverSSHConfig } from "../utils/config.js";
 import { uploadPath, executeSSHCommand } from "../utils/ssh.js";
 import { readdirSync } from "node:fs";
 import { getUserInput } from "../utils/input.js";
+import { log } from '../utils/console.js';
 
 // 处理延时
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // 处理载体柜服务更新
 export async function handleCabinetServerUpdate(): Promise<void> {
-  console.log("开始更新后台服务...");
+  log.info("开始更新后台服务...");
   try {
     const sudoPassword = await getUserInput("请输入管理员密码: ");
 
     // 1. 上传更新文件夹
     const localPath = join(process.cwd(), "cabinet-server-update");
     await uploadPath(localPath, serverSSHConfig, sudoPassword);
-    console.log("更新文件上传完成");
+    log.success("更新文件上传完成");
 
     // 2. 停止服务
     await executeSSHCommand(`echo "${sudoPassword}" | sudo -S systemctl stop Cabinet.service`, serverSSHConfig);
-    console.log("Cabinet 服务已停止");
+    log.success("Cabinet 服务已停止");
 
     // 3. 覆盖文件
     const updateCommand = `echo "${sudoPassword}" | sudo -S cp -rf ${serverSSHConfig.remotePath}/* /home/liqingshan/smart-cabinet/cabinet-server/`;
     await executeSSHCommand(updateCommand, serverSSHConfig);
-    console.log("文件覆盖完成");
+    log.success("文件覆盖完成");
 
     // 4. 启动服务
     await executeSSHCommand(`echo "${sudoPassword}" | sudo -S systemctl start Cabinet.service`, serverSSHConfig);
-    console.log("Cabinet 服务已启动");
+    log.success("Cabinet 服务已启动");
 
     // 5. 延时后检查服务状态
     await delay(5000); // 等待 5 秒
@@ -37,18 +38,18 @@ export async function handleCabinetServerUpdate(): Promise<void> {
 
     // 6. 输出更新结果
     if (serviceStatus.includes("active (running)")) {
-      console.log("更新成功：Cabinet 服务运行正常");
+      log.success("更新成功：Cabinet 服务运行正常");
     } else {
       throw new Error("更新失败：Cabinet 服务未正常运行");
     }
   } catch (error) {
-    console.error("更新过程出错:", error instanceof Error ? error.message : String(error));
+    log.error("更新过程出错" + (error instanceof Error ? error.message : String(error)));
     throw error;
   }
 }
 
 export async function handleSmartCabinetUpdate(): Promise<void> {
-  console.log("开始更新载体柜程序...");
+  log.info("开始更新载体柜程序...");
   try {
     // 1. 查找并上传载体柜更新文件
     const smartCabinetPattern = /^smart_cabinet_\d+\.\d+\.\d+\.deb$/;
@@ -63,11 +64,11 @@ export async function handleSmartCabinetUpdate(): Promise<void> {
 
     const localPath = join(process.cwd(), smartCabinetUpdateFile);
     await uploadPath(localPath, cabinetSSHConfig, sudoPassword);
-    console.log("更新文件上传完成");
+    log.success("更新文件上传完成");
 
     // 2. 执行更新命令
     await executeSSHCommand(`cd ${cabinetSSHConfig.remotePath} && echo "${sudoPassword}" | sudo dpkg -i ${smartCabinetUpdateFile}`, cabinetSSHConfig);
-    console.log("载体柜更新完成");
+    log.success("载体柜更新完成");
 
     // 3. 检查更新结果
     const checkCommand = `dpkg-query -W -f='\${Version}' smart-cabinet`;
@@ -80,35 +81,35 @@ export async function handleSmartCabinetUpdate(): Promise<void> {
 
     // 比较版本号
     if (version.trim() === updateVersion) {
-      console.log(`更新成功：当前版本为 ${version.trim()}`);
+      log.success(`更新成功：当前版本为 ${version.trim()}`);
     } else {
       throw new Error(`更新失败：当前版本(${version.trim()})与更新版本(${updateVersion})不一致`);
     }
 
     // 4. 删除更新文件
     await executeSSHCommand(`rm -rf ${cabinetSSHConfig.remotePath}${smartCabinetUpdateFile}`, cabinetSSHConfig);
-    console.log("更新文件已删除");
+    log.success("更新文件已删除");
   } catch (error) {
-    console.error("更新过程出错:", error instanceof Error ? error.message : String(error));
+    log.error("更新过程出错" + (error instanceof Error ? error.message : String(error)));
     throw error;
   }
 }
 
 export async function handleAccessDoorUpdate(): Promise<void> {
-  console.log("开始更新通道门程序...");
+  log.info("开始更新通道门程序...");
   try {
     const sudoPassword = await getUserInput("请输入 sudo 密码: ");
     // 1. 检查并关闭通道门程序
-    console.log("正在检查通道门程序状态...");
+    log.info("正在检查通道门程序状态...");
     const checkProcessCommand = "ps -ef | grep access-door | grep -v grep || true";
     const processOutput = await executeSSHCommand(checkProcessCommand, cabinetSSHConfig);
 
     if (processOutput.trim()) {
-      console.log("检测到通道门程序正在运行，准备关闭...");
+      log.warning("检测到通道门程序正在运行，准备关闭...");
       await executeSSHCommand(`echo "${sudoPassword}" | sudo systemctl stop access-door`, cabinetSSHConfig);
-      console.log("通道门程序已关闭");
+      log.success("通道门程序已关闭");
     } else {
-      console.log("通道门程序未运行");
+      log.info("通道门程序未运行");
     }
 
     // 2. 查找并上传通道门更新文件
@@ -122,11 +123,11 @@ export async function handleAccessDoorUpdate(): Promise<void> {
 
     const localPath = join(process.cwd(), accessDoorUpdateFile);
     await uploadPath(localPath, cabinetSSHConfig, sudoPassword);
-    console.log("更新文件上传完成");
+    log.success("更新文件上传完成");
 
     // 3. 执行更新命令
     await executeSSHCommand(`cd ${cabinetSSHConfig.remotePath} && echo "${sudoPassword}" | sudo dpkg -i ${accessDoorUpdateFile}`, cabinetSSHConfig);
-    console.log("通道门更新完成");
+    log.success("通道门程序更新完成");
 
     // 4. 检查更新结果
     const checkCommand = `dpkg-query -W -f='\${Version}' access-door`;
@@ -139,16 +140,16 @@ export async function handleAccessDoorUpdate(): Promise<void> {
 
     // 比较版本号
     if (version.trim() === updateVersion) {
-      console.log(`通道门程序更新成功：当前版本为 ${version.trim()}`);
+      log.success(`通道门程序更新成功：当前版本为 ${version.trim()}`);
     } else {
       throw new Error(`更新失败：当前版本(${version.trim()})与更新版本(${updateVersion})不一致`);
     }
 
     // 5. 删除更新文件
     await executeSSHCommand(`rm -rf ${cabinetSSHConfig.remotePath}${accessDoorUpdateFile}`, cabinetSSHConfig);
-    console.log("更新文件已删除");
+    log.success("更新文件已删除");
   } catch (error) {
-    console.error("更新过程出错:", error instanceof Error ? error.message : String(error));
+    log.error("更新过程出错" + (error instanceof Error ? error.message : String(error)));
     throw error;
   }
 }

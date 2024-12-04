@@ -2,29 +2,46 @@ import SftpClient from "ssh2-sftp-client";
 import { Client } from "ssh2";
 import { SSHConfig } from "./types";
 import { getUserInput } from "./input";
+import { log } from "./console";
 
 // 存储 SSH 连接
 const sshConnections: Map<string, { client: Client; password: string }> = new Map();
 
-export async function uploadPath(localPath: string, config: SSHConfig,password:string): Promise<void> {
+export async function uploadPath(localPath: string, config: SSHConfig, password: string): Promise<void> {
   const { host, remotePath, port } = config;
-  console.log(`正在上传 ${localPath} 到 ${host}:${remotePath}`);
   const sftp = new SftpClient();
-
+  
   try {
+    log.info(`正在上传 ${localPath} 到 ${host}:${remotePath}`);
+    
     await sftp.connect({
-      host: host.split("@")[1], // 提取主机地址
+      host: host.split("@")[1],
       port: port,
-      username: host.split("@")[0], // 提取用户名
+      username: host.split("@")[0],
       password,
+      readyTimeout: 10000, // 增加超时时间
+      retries: 3, // 添加重试次数
     });
 
+    // 检查远程目录是否存在
+    try {
+      await sftp.mkdir(remotePath, true);
+    } catch (mkdirError) {
+      log.warning(`创建远程目录失败: ${mkdirError instanceof Error ? mkdirError.message : String(mkdirError)}`);
+    }
+
     await sftp.uploadDir(localPath, remotePath);
-    console.log("上传成功");
+    log.success("上传成功");
   } catch (error) {
-    throw new Error(`上传失败: ${error instanceof Error ? error.message : String(error)}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log.error(`上传失败: ${errorMessage}`);
+    throw new Error(`上传失败: ${errorMessage}`);
   } finally {
-    await sftp.end();
+    try {
+      await sftp.end();
+    } catch (closeError) {
+      log.warning(`关闭连接失败: ${closeError instanceof Error ? closeError.message : String(closeError)}`);
+    }
   }
 }
 
