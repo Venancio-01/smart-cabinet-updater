@@ -1,0 +1,14 @@
+[Unit]
+Description=Smart Cabinet Service
+After=network.target
+
+[Service]
+Type=simple
+User=liqingshan
+WorkingDirectory=/home/liqingshan/smart-cabinet/cabinet-server
+ExecStart=/home/liqingshan/smart-cabinet/dotnet/dotnet /home/liqingshan/smart-cabinet/cabinet-server/WaterCloud.Web.dll
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

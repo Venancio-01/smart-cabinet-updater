@@ -1,0 +1,128 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    layui.use(['jquery', 'form', 'laydate', 'common', 'optimizeSelectOption'], function () {
+        var form = layui.form,
+            $ = layui.$,
+            common = layui.common,
+            laydate = layui.laydate;
+        //权限字段
+        common.authorizeFields('adminform');
+        var keyValue = $.request("keyValue");
+        $(function () {
+            initControl();
+            if (!!keyValue & keyValue != 0) {
+
+                common.ajax({
+                    url: "/CabinetManage/CabinetDoor/GetFormJson",
+                    dataType: "json",
+                    data: { keyValue: keyValue },
+                    async: false,
+                    success: function (data) {
+                        common.val('adminform', data);
+                    }
+                });
+            }
+            form.render();
+        });
+
+        function initControl() {
+            $("#CabinetId").bindSelect({
+                url: "/CabinetManage/Cabinet/GetSelectJson2",
+            });
+        }
+
+        wcLoading.close();
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            var postData = data.field;
+            common.submitForm({
+                url: "/CabinetManage/CabinetDoor/SubmitForm?keyValue=" + keyValue,
+                param: postData,
+                success: function () {
+                    common.parentreload("data-search-btn");
+                }
+            })
+            return false;
+        });
+    });
+</script>
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <div class="layui-form layuimini-form" lay-filter="adminform">
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">所属存放柜</label>
+                    <div class="layui-input-block">
+                        <select id="CabinetId" name="CabinetId" lay-verify="required" lay-filter="F_CabinetId">
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">柜门名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="viewName" name="viewName" maxlength="50" lay-verify="required" class="layui-input" placeholder="柜门名称">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">开关编号</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="Kgbh" name="Kgbh" maxlength="50" lay-verify="required" class="layui-input" placeholder="开关编号">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否状态反转</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" id="Kglx" name="Kglx" checked="" lay-skin="switch">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide layui-form-text">
+                    <label class="layui-form-label " id="equipment_PortSet">柜门锁板IP</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="KgAddr" name="KgAddr" maxlength="50" class="layui-input" placeholder="柜门锁板IP">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide layui-form-text">
+                    <label class="layui-form-label " id="equipment_PortSet">柜门屏幕IP</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="FolderPath" name="FolderPath" maxlength="50" class="layui-input" placeholder="柜门屏幕IP">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide layui-form-text">
+                    <label class="layui-form-label " id="equipment_PortSet">读取器IP</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="txAddr" name="txAddr" maxlength="50" class="layui-input" placeholder="读取器IP">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label ">读取器天线</label>
+                    <div class="layui-input-block" id="equipment_txidSet">
+                        <input lay-skin="primary" type="checkbox" id="txid1" name="txid1" value="1" title="天线1" />
+                        <input lay-skin="primary" type="checkbox" id="txid2" name="txid2" value="2" title="天线2" />
+                        <input lay-skin="primary" type="checkbox" id="txid3" name="txid3" value="3" title="天线3" />
+                        <input lay-skin="primary" type="checkbox" id="txid4" name="txid4" value="4" title="天线4" />
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="State" id="State" checked="" value="true" title="状态">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">排序</label>
+                    <div class="layui-input-block">
+                        <input type="number" id="OrderIndex" name="OrderIndex" maxlength="50" lay-verify="required" class="layui-input" placeholder="排序">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-hide">
+                    <button class="layui-btn site-demo-active" lay-submit id="submit" lay-filter="saveBtn">确认保存</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>

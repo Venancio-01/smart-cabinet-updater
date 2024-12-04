@@ -1,0 +1,383 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link href="~/js/lay-module/flow/WaterFlow.css" rel="stylesheet"  media="all"/>
+<link href="~/css/stepcss.css" rel="stylesheet"  media="all"/>
+<link href="~/js/lay-module/formDesigner/formPreview.css" rel="stylesheet" media="all"/>
+<style type="text/css">
+    div.layui-table-cell {
+        color: rgb(102, 102, 102) !important;
+    }
+</style>
+<script>
+    //参数传递到表单页
+    //表单数据
+    var formtext;
+    var NextNodeDesignateType;
+    var readonly=false;
+    var dataJson={};
+    layui.use(['form', 'layer', 'element', 'jquery', 'table', 'waterflow', 'flowlayout', 'common', 'step', 'dtree', 'formPreview', 'layedit', 'optimizeSelectOption'], function () {
+        var form = layui.form,
+            element = layui.element,
+            layer = layui.layer,
+            $ = layui.jquery,
+            step = layui.step,
+            layedit = layui.layedit,
+            dtree = layui.dtree,
+            common = layui.common,
+            formPreview = layui.formPreview,
+            table = layui.table;
+        var keyValue = $.request("keyValue");
+        var postData = {};
+        step.render({
+            elem: '#stepForm',
+            filter: 'stepForm',
+            width: '100%', //设置容器宽度
+            stepWidth: '750px',
+            height: '650px',
+            stepItems: [{
+                title: '表单信息'
+            },{
+                title: '基础信息'
+            }]
+        });
+        //权限字段
+        common.authorizeFields('adminform');
+        /*=========流程设计（begin）======================*/
+        var flowDesignPanel = $('#flowPanel').flowdesign({
+            height: 300,
+            widht: $(window).width() - 250,
+            preview: 1,
+            haveTool: false,
+            OpenNode: function (object) {
+                FlowDesignObject = object; //为NodeInfo窗口提供调用
+
+                if (object.type == 'start round mix' || object.type == 'end round') {
+                    layer.msg("开始节点与结束节点不能设置");
+                    return false;
+                }
+
+                top.layer.open({
+                    type: 2,
+                    area: ['550px', '450px'], //宽高
+                    maxmin: true, //开启最大化最小化按钮
+                    title: '节点设置【' + object.name + '】',
+                    content: '/SystemManage/Flowscheme/NodeInfo',
+                    btn: ['关闭'],
+                    success: function (layero, index) {
+                        //子界面定义一个窗口方法initForm，里面调用common.val给参数赋值
+                        if (layero.find('iframe')[0].contentWindow.initForm) {
+                            var data = {};
+                            data.FlowDesignObject = FlowDesignObject;
+                            layero.find('iframe')[0].contentWindow.initForm(data);
+                        }
+                    },
+                    cancel: function (index) {
+                        top.layer.close(index);
+                    }
+                });
+            },
+            OpenLine: function (object) {
+                FlowDesignObject = object; //为NodeInfo窗口提供调用
+                valueList = $("#valueList").val().split(',');
+                top.layer.open({
+                    type: 2,
+                    area: ['550px', '450px'], //宽高
+                    maxmin: true, //开启最大化最小化按钮
+                    title: '连线设置【' + object.name + '】',
+                    content: '/SystemManage/Flowscheme/LineInfo',
+                    btn: ['关闭'],
+                    success: function (layero, index) {
+                        //子界面定义一个窗口方法initForm，里面调用common.val给参数赋值
+                        if (layero.find('iframe')[0].contentWindow.initForm) {
+                            var data = {};
+                            data.FlowDesignObject = FlowDesignObject;
+                            data.valueList = valueList;
+                            layero.find('iframe')[0].contentWindow.initForm(data);
+                        }
+                    },
+                    cancel: function (index) {
+                        top.layer.close(index);
+                    }
+                });
+                return;
+            }
+        });
+        /*=========流程设计（end）=====================*/
+        $('#NextMakerName').parent().parent().addClass('layui-hide');
+        //流程模板选择列表
+        var changeScheme = function (id) { //切换表单
+            common.ajax({
+                url: '/SystemManage/Flowscheme/GetFormJson',
+                dataType: 'json',
+                data: { keyValue: id },
+                async: false,
+                success: function (data) {
+                    if (data.F_FrmType == 0) {
+                        var dataJson = JSON.parse(data.F_FrmContent);
+                        //表单设计器
+                        renderForm = formPreview.render({
+                            data: dataJson,
+                            elem: '#frmPreview',
+                            readonly: false,
+                        });
+                    }
+                    else {
+                        $("#frmPreview").load(document.location.origin + '/form/' + data.F_WebId + '.html');
+                    }
+                    NextNodeDesignateType = data.NextNodeDesignateType;
+                    $('#NextMakerName').parent().parent().removeClass('layui-hide');
+                    if (!data.NextNodeDesignateType) {
+                        $('#NextNodeDesignates').val('');
+                        $('#NextMakerName').val('无人审核');
+                        $('#NextMakerName').attr('disabled', 'disabled');
+                        $('#NextMakerName').removeAttr('placeholder');
+                    }
+                    else if (data.NextNodeDesignateType == "RUNTIME_SPECIAL_ROLE") {
+                        $('#NextNodeDesignates').val('');
+                        $('#NextMakerName').val('');
+                        $('#NextMakerName').removeAttr('disabled');
+                        $('#NextMakerName').attr('placeholder', '请点击选择角色');
+                    }
+                    else if (data.NextNodeDesignateType == "RUNTIME_SPECIAL_USER") {
+                        $('#NextNodeDesignates').val('');
+                        $('#NextMakerName').val('');
+                        $('#NextMakerName').removeAttr('disabled');
+                        $('#NextMakerName').attr('placeholder', '请点击选择用户');
+                    }
+                    else if (data.NextNodeDesignateType == "ALL_USER") {
+                        $('#NextNodeDesignates').val('');
+                        $('#NextMakerName').val('所有人');
+                        $('#NextMakerName').attr('disabled', 'disabled');
+                        $('#NextMakerName').removeAttr('placeholder');
+                    }
+                    else {
+                        $('#NextNodeDesignates').val('');
+                        $('#NextMakerName').val('');
+                        $('#NextMakerName').attr('disabled', 'disabled');
+                        $('#NextMakerName').removeAttr('placeholder');
+                        $('#NextMakerName').val(data.NextMakerName);
+                        if (!data.NextMakerName) {
+                            $('#NextMakerName').val("无人审核");
+                        }
+                    }
+                    //预览流程
+                    flowDesignPanel.loadData(JSON.parse(data.F_SchemeContent));
+                    postData.F_CustomName = data.F_SchemeName + " " + new Date().Format("yyyy-MM-dd hh:mm:ss");
+                }
+            });
+            form.render();
+        }
+        var renderForm;
+        form.on('select(schemeChangeFilter)', function (obj) {
+            if (!!obj.value) {
+                change = true;
+                $('#F_SchemeId').val(obj.value);
+            }
+            else {
+                $('#F_SchemeId').val('');
+            }
+            $("#frmPreview").html('');
+            $("#valueList").val('');
+            if (!!obj.value) {
+                changeScheme(obj.value);
+            }
+            form.render();
+        });
+        $(function () {
+            $('#F_Code').val(new Date().getTime());
+            initControl();
+            if (!!keyValue) {
+                common.ajax({
+                    url: '/FlowManage/Flowinstance/GetFormJson',
+                    dataType: 'json',
+                    data: { keyValue: keyValue },
+                    async: false,
+                    success: function (data) {
+                        common.val('adminform', data);
+                        flowDesignPanel.loadData(JSON.parse(data.F_SchemeContent));
+                        changeScheme(data.F_SchemeId);
+                        formtext = data.F_FrmData;
+                        if (data.F_FrmType == 0) {
+                            var dataJson = JSON.parse(data.F_FrmContent);
+                            //表单设计器
+                            renderForm= formPreview.render({
+                                data: dataJson,
+                                elem: '#frmPreview',
+                                readonly:false
+                            });
+                            renderForm.setFormData(JSON.parse(formtext));
+                        }
+                        else {
+                            $("#frmPreview").load(document.location.origin + '/form/' + data.F_DbName + '.html');
+                            form.render();
+                        }
+                    }
+                });
+            }
+            form.render();
+        });
+        function initControl() {
+            $("#F_SchemeId").bindSelect({
+                url: "/SystemManage/Flowscheme/GetListJson",
+                id: 'F_Id',
+                text: 'F_SchemeName'
+            });
+            form.render();
+        }
+
+        flowDesignPanel.reinitSize($(window).width() - 50, $(window).height() - 100);
+        $(window).resize(function () {
+            flowDesignPanel.reinitSize($(window).width() - 50, $(window).height() - 100);
+        });
+        wcLoading.close();
+        //让层自适应iframe
+        //layer.iframeAuto(index);
+        $('.pre').click(function () {
+            step.pre('#stepForm');
+        });
+
+        $('.next').click(function () {
+            step.next('#stepForm');
+        });
+        //监听提交
+        form.on('submit(formStep)', function (data) {
+            postData = $.extend(postData, data.field);
+            var content = flowDesignPanel.exportData();
+            if (content == -1) {
+                return false; //阻止表单跳转。
+            }
+            delete data.field.F_SchemeId;
+            delete data.field.valueList;
+            delete data.field.F_Code;
+            delete data.field.F_Description;
+            delete data.field.file;
+            if (postData.NextMakerName == "无人审核") {
+                common.modalMsg("无人审核，请检查流程", "warning");
+                return false;
+            }
+            if(!!renderForm)
+            {
+                var tempdata = renderForm.getFormData();
+                postData.F_FrmData = JSON.stringify(tempdata);
+            }
+            else{
+                postData.F_FrmData = JSON.stringify(data.field);
+            }
+            step.next('#stepForm');
+            return false;
+        });
+        form.on('submit(saveBtn)', function (data) {
+            postData.NextNodeDesignateType = NextNodeDesignateType;
+            postData.NextNodeDesignates = postData.NextNodeDesignates ? postData.NextNodeDesignates.split(',') : [];
+            postData.F_Code = data.field.F_Code;
+            common.submitForm({
+                url: '/FlowManage/Flowinstance/SubmitForm?keyValue=' + keyValue,
+                param: postData,
+                success: function () {
+                    common.reloadIframe("/FlowManage/Flowinstance/Index", 'data-search-btn');
+                    common.reloadIframe("/FlowManage/Flowinstance/ToDoFlow", 'data-search-btn');
+                    common.reloadIframe("/FlowManage/Flowinstance/DoneFlow", 'data-search-btn');
+                }
+            })
+            return false;
+        });
+    });
+    function search() {
+        layui.use(['jquery', 'form', 'common'], function () {
+            var form = layui.form,
+                $ = layui.$,
+                common = layui.common;
+            //不同弹窗
+            if (NextNodeDesignateType == 'RUNTIME_SPECIAL_ROLE') {
+                common.modalOpen({
+                    title: "选择角色",
+                    url: "/SystemOrganize/Role/AddForm?name=" + "NextMakerName" + "&value=" + "NextNodeDesignates" + "&ids=" + $('#NextNodeDesignates').val(),
+                    width: "650px",
+                    height: "600px",
+                });
+            }
+            else if (NextNodeDesignateType == 'RUNTIME_SPECIAL_USER') {
+                common.modalOpen({
+                    title: "选择用户",
+                    url: "/SystemOrganize/User/AddForm?name=" + "NextMakerName" + "&value=" + "NextNodeDesignates" + "&ids=" + $('#NextNodeDesignates').val(),
+                    width: "650px",
+                    height: "600px",
+                });
+            }
+        });
+    }
+</script>
+
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <div class="layui-form layuimini-form" lay-filter="adminform">
+                <div class="layui-carousel" id="stepForm" lay-filter="stepForm">
+                    <div carousel-item style="overflow:scroll">
+                        <div>
+                            <form class="layui-form layuimini-form">
+                                <div class="layui-form-item layui-hide">
+                                    <label class="layui-form-label required">选择流程模板</label>
+                                    <div class="layui-input-block">
+                                        <select id="F_SchemeId" name="F_SchemeId" lay-filter='schemeChangeFilter' lay-verify="required" lay-search>
+                                            <option value="" selected>请选择</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item layui-hide">
+                                    <label class="layui-form-label required">下一步审核</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="NextMakerName" disabled="disabled" id="NextMakerName" lay-verify="required" onclick="search()" class="layui-input">
+                                        <input type="text" name="NextNodeDesignates" id="NextNodeDesignates" class="layui-input layui-hide">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <fieldset class="layui-elem-field">
+                                        <legend>申请内容</legend>
+                                        <div id="frmPreview"></div>
+                                    </fieldset>
+                                </div>
+                                <div class="form-group-bottom text-right">
+                                    <div class="layui-input-block">
+                                        <button class="layui-btn" lay-submit lay-filter="formStep">
+                                            &emsp;下一步&emsp;
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div>
+                            <form class="layui-form layuimini-form">
+                                <div class="layui-form-item">
+                                    <fieldset class="layui-elem-field">
+                                        <legend>基础信息</legend>
+                                        <div class="layui-form-item layui-hide">
+                                            <label class="layui-form-label">流程编号</label>
+                                            <input type="text" name="valueList" id="valueList" class="layui-hide" hidden>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="F_Code" id="F_Code" disabled="disabled" lay-verify="required"
+                                                       class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div id="flowPanel"></div>
+                                    </fieldset>
+                                </div>
+                                <div class="form-group-bottom text-right">
+                                    <div class="layui-input-block">
+                                        <button type="button" class="layui-btn layui-btn-primary pre">上一步</button>
+                                        <button class="layui-btn site-demo-active" lay-submit lay-filter="saveBtn">
+                                            &emsp;保存&emsp;
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+

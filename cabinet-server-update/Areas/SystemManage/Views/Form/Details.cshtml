@@ -1,0 +1,52 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link href="~/js/lay-module/formDesigner/formPreview.css" rel="stylesheet" />
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <form class="layui-form layuimini-form">
+            <div class="layui-form-item">
+                <fieldset class="layui-elem-field" style="padding-top:15px;">
+                    <div id="frmPreview"></div>
+                </fieldset>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    //只读参数
+    var readonly = true;
+    var dataJson=[];
+    layui.use(['jquery', 'form', 'common','formPreview'], function () {
+        var form = layui.form,
+            common = layui.common,
+            formPreview = layui.formPreview,
+            $ = layui.jquery;
+        var keyValue = $.request("keyValue");
+        $(function () {
+            common.ajax({
+                url: '/SystemManage/Form/GetFormJson',
+                dataType: 'json',
+                data: { keyValue: keyValue },
+                async: false,
+                success: function (data) {
+                    if (data.F_FrmType != 0) {
+                        $("#frmPreview").load(document.location.origin + '/form/' + data.F_WebId + '.html');
+                    }
+                    else {
+                        //表单设计器
+                        dataJson = JSON.parse(data.F_Content);
+                        renderForm = formPreview.render({
+                            elem: '#frmPreview',
+                            data: dataJson,
+                            readonly: true
+                        });
+                    }
+                }
+            });
+            form.render();
+        });
+        wcLoading.close();
+    })
+</script>

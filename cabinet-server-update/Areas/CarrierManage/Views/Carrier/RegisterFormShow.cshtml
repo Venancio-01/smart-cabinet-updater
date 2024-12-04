@@ -1,0 +1,173 @@
+﻿@{
+    ViewData["Title"] = "RegisterFormShow";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    layui.use(['jquery', 'form', 'laydate', 'common', 'optimizeSelectOption', 'dtree'], function () {
+        var form = layui.form,
+            $ = layui.$,
+            common = layui.common,
+            laydate = layui.laydate,
+            laydtree = layui.dtree;
+        //权限字段
+        common.authorizeFields('adminform');
+        var keyValue = $.request("keyValue");
+        var bindingType;
+        $(function () {
+            //执行一个laydate实例
+            laydate.render({
+                elem: '#start_time', //指定元素
+                type: 'datetime'
+            });
+            //执行一个laydate实例
+            laydate.render({
+                elem: '#end_time', //指定元素
+                type: 'datetime'
+            });
+
+            if (!!keyValue & keyValue != 0) {
+                common.ajax({
+                    url: "/CarrierManage/Carrier/GetRegisterFormJson",
+                    dataType: "json",
+                    data: { keyValue: keyValue },
+                    async: false,
+                    success: function (data) {
+                        common.val('adminform', data);
+                        bindingType = data.bindingType;
+                    }
+                });
+            }
+            form.render();
+        });
+        wcLoading.close();
+        //select验证
+        form.verify({
+            required: function (value, item) {
+                var msg = "不能为空";
+                value = $.trim(value);
+                var isEmpty = !value || value.length < 1;
+                // 当前验证元素是select且为空时,将页面定位至layui渲染的select处，或自定义想定位的位置
+                if (item.tagName == 'SELECT' && isEmpty) {
+                    $("html").animate({
+                        scrollTop: $(item).siblings(".layui-form-select").offset().top - 74
+                    }, 50);
+                }
+                if (isEmpty) {
+                    return $(item).attr("placeholder") + msg;
+                }
+            }
+        })
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            var postData = data.field;
+            if (postData.start_time >= postData.end_time) {
+                layer.msg('开始时间不能大于结束时间');
+                return false;
+            }
+
+            layer.open({
+                title:'提示'
+                ,content: '确认提交修改吗！提交后需要重新审批！'
+                , btn: ['确定', '取消']
+                , yes: function (index, layero) {
+
+                    postData.Carrier_ID = keyValue;
+                    postData.type = postData.Carrier_type;
+                    postData.Carrier_Deptid_ID = postData.binding_dept_id
+                    common.submitForm({
+                        url: "/CarrierManage/Carrier/SubmitRegisterForm",
+                        param: postData,
+                        success: function () {
+                            common.parentreload("data-search-btn");
+                        }
+                    })
+                    return false;
+                }
+            });
+
+            // var postData = data.field;
+            // postData.Carrier_ID = keyValue;
+            // postData.type = postData.Carrier_type;
+            // common.submitForm({
+            //     url: "/CarrierManage/Carrier/SubmitRegisterForm?keyValue=" + keyValue,
+            //     param: postData,
+            //     success: function () {
+            //         common.parentreload("data-search-btn");
+            //     }
+            // })
+            // return false;
+        });
+    });
+</script>
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <div class="layui-form layuimini-form" lay-filter="adminform">
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">载体名称</label>
+                    <div class="layui-input-block">
+
+                        <input type="text" id="Carrier_type" name="Carrier_type" maxlength="50" class="layui-input layui-disabled layui-hide" placeholder="载体类型">
+
+                        <input type="text" id="doc_rfid" name="doc_rfid" maxlength="50" class="layui-input layui-disabled layui-hide" placeholder="载体rfid">
+
+                        <input type="text" id="doc_name" name="doc_name" maxlength="50" lay-verify="required" class="layui-input layui-disabled" placeholder="载体名称">
+                    </div>
+                </div>
+
+            @*     <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">所属机构/人员</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="bindingName" name="bindingName" maxlength="50" lay-verify="required" class="layui-input layui-disabled" placeholder="所属机构/人员">
+                        <input type="text" id="binding_dept_id" name="binding_dept_id" maxlength="50" class="layui-input layui-disabled layui-hide" placeholder="绑定部门">
+                    </div>
+                </div> *@
+
+
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">外出时间</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="start_time" name="start_time" maxlength="50" lay-verify="required" class="layui-input" placeholder="请选择外出开始时间">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">结束时间</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="end_time" name="end_time" maxlength="50" lay-verify="required" class="layui-input" placeholder="请选择外出结束时间">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">申请人</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="applyUser" name="applyUser" maxlength="50" lay-verify="required" class="layui-input" placeholder="申请人">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">外出地点</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="outaddress" name="outaddress" maxlength="50" lay-verify="required" class="layui-input" placeholder="外出地点">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">外出原因</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="outreason" name="outreason" maxlength="50" lay-verify="required" class="layui-input" placeholder="外出原因">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-block">
+                        <textarea id="reamrk" name="reamrk" class="layui-textarea" placeholder="请输入备注"></textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-hide">
+                    <button class="layui-btn site-demo-active" lay-submit id="submit" lay-filter="saveBtn">确认保存</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+

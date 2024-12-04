@@ -1,0 +1,144 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    layui.use(['jquery', 'form', 'laydate', 'common', 'optimizeSelectOption'], function () {
+        var form = layui.form,
+            $ = layui.$,
+            common = layui.common,
+            laydate = layui.laydate;
+        //权限字段
+        common.authorizeFields('adminform');
+        var keyValue = $.request("keyValue");
+        $(function () {
+
+            form.on('select(F_TypeClass)', function (data) {
+                var fid = data.value;
+                fidChange(fid);
+                form.render();//刷新select选择框渲染
+            });
+
+            if (keyValue != 0) {
+                initControl();
+                common.ajax({
+                    url: "/CabinetManage/Cabinet/GetFormJson",
+                    dataType: "json",
+                    data: { keyValue: keyValue },
+                    async: false,
+                    success: function (data) {
+                        common.val('adminform', data);
+                        if (data.TypeClass == 0) {
+                            $("#fid").empty();//清空
+                            $("#fid").append($("<option></option>").val("0").html("控制柜"));
+                        }
+                    }
+                });
+            }
+            form.render();
+        });
+
+        function initControl() {
+            $("#fid").bindSelect({
+                url: "/CabinetManage/Cabinet/GetSelectJson",
+            });
+        }
+
+        function fidChange(fid) {
+            $("#fid").empty();//清空
+            $("#fid").append($("<option></option>").val("0").html("请选择控制柜"));
+            if (fid == 0) {//控制柜
+                $("#fid").empty();//清空
+                $("#fid").append($("<option></option>").val("0").html("控制柜"));
+                $("#cabAddr").attr("lay-verify", "required");
+                $("#openDoor").attr("lay-verify", "required");
+            }
+            else {
+                $("#fid").bindSelect({
+                    url: "/CabinetManage/Cabinet/GetSelectJson",
+                });
+            }
+            form.render();//刷新select选择框渲染
+        }
+        wcLoading.close();
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            var postData = data.field;
+            common.submitForm({
+                url: "/CabinetManage/Cabinet/SubmitForm?keyValue=" + keyValue,
+                param: postData,
+                success: function () {
+                    common.parentreload("data-search-btn");
+                }
+            })
+            return false;
+        });
+    });
+</script>
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <div class="layui-form layuimini-form" lay-filter="adminform">
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">设备类型</label>
+                    <div class="layui-input-block">
+                        <select id="TypeClass" name="TypeClass" lay-verify="required" lay-filter="F_TypeClass">
+                            <option value="3" selected>==请选择==</option>
+                            <option value="0">控制柜</option>
+                            <option value="2">文件柜</option>
+                            <option value="1">载体柜</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">控制端设备</label>
+                    <div class="layui-input-block">
+                        <select id="fid" name="fid" lay-verify="required" lay-search>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">设备名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="Name" name="Name" maxlength="50" lay-verify="required" class="layui-input" placeholder="请输入设备名称">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide layui-form-text">
+                    <label class="layui-form-label " id="addressip_set">设备地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="cabAddr" name="cabAddr" maxlength="50" class="layui-input" placeholder="请输入设备地址">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label " id="equipment_addrSet">柜门控制串口号</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="openDoor" name="openDoor" maxlength="50" class="layui-input" placeholder="请输入串口号">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide layui-form-text">
+                    <label class="layui-form-label " id="equipment_PortSet">显示界面顶部标语</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="SecretLevel" name="SecretLevel" maxlength="50" class="layui-input" placeholder="请输入顶部标语">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide layui-form-text">
+                    <label class="layui-form-label " id="equipment_PortSet">显示界面底部标语</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="Classification" name="Classification" maxlength="50" class="layui-input" placeholder="请输入底部标语">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="State" id="State" checked="" value="true" title="状态">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-hide">
+                    <button class="layui-btn site-demo-active" lay-submit id="submit" lay-filter="saveBtn">确认保存</button>
+                </div>
+
+            </div>
+        </div>
+        </div>
+</body>

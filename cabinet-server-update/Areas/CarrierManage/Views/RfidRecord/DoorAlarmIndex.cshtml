@@ -1,0 +1,303 @@
+﻿@{
+    ViewBag.Title = "通道门报警记录";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    layui.use(['jquery', 'form', 'table', 'dtree', 'common', 'commonTable', 'optimizeSelectOption'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table,
+            commonTable = layui.commonTable,
+            laydate = layui.laydate,
+            laydtree = layui.dtree,
+            common = layui.common;
+        //权限控制(js是值传递)
+        currentTableBar.innerHTML = common.authorizeButtonNew(currentTableBar.innerHTML);
+        toolbarDemo.innerHTML = common.authorizeButtonNew(toolbarDemo.innerHTML);
+
+        var serchHeight = parseInt(40 + ($(".table-search-fieldset").height() || 0));
+        //var DepartmentId = top.currentUser.F_DepartmentId;
+        //$("#currentTable").attr("data-id", DepartmentId)
+        // 初始化树
+        var optionsTree = laydtree.render({
+            elem: "#currentTable",
+            method: "GET",
+            height: 'full-' + serchHeight,
+            width: "100%",
+            dataStyle: "layuiStyle",  //使用layui风格的数据格式
+            // dataFormat: "list",  //配置data的风格为list
+            response: { message: "message", statusCode: 200 },  //修改response中返回数据的定义
+            scroll: "#currentTableDiv", // 绑定div元素
+            icon: "2",
+            url: "/SystemOrganize/Organize/GetDTreeJson", // 使用url加载（可与data加载同时存在）
+            initLevel: "3",
+            type: "all", // 改为全量加载，即取消自动加载
+        });
+
+        laydtree.on("node('currentTable')", function (obj) {
+            options.where = {
+                doc_name: $("#doc_name").val(),
+                start_time: $("#start_time").val(),
+                end_time: $("#end_time").val(),
+                binding_dept_id: obj.param.nodeId
+            };
+            commonTable.reloadtable({ elem: 'currentTableId', where: options.where });
+        });
+
+        laydtree.on("nodedblclick('currentTable')", function (obj) {
+            options.where = {
+                doc_name: $("#doc_name").val(),
+                start_time: $("#start_time").val(),
+                end_time: $("#end_time").val(),
+                binding_dept_id: obj.param.nodeId
+            };
+            // console.log(obj.param); // 点击当前节点传递的参数
+            // console.log(obj.dom); // 当前节点的jquery对象
+            // console.log(obj.childParams); // 当前节点的所有子节点参数
+            // console.log(obj.parentParam); // 当前节点的父节点参数
+            commonTable.reloadtable({ elem: 'currentTableId', where: options.where });
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start_time', //指定元素
+            type: 'datetime'
+        });
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end_time', //指定元素
+            type: 'datetime'
+        });
+
+        var options = {
+            elem: '#currentTableId',
+            id: 'currentTableId',
+            url: '/CarrierManage/RfidRecord/DoorAlarmGetGridJson',
+            defaultToolbar: [
+                'filter',
+                {
+                    name: 'exports',
+                    layEvent: 'LAYTABLE_EXPORT',
+                    icon: 'layui-icon-export',
+                    onClick: function (obj) {
+                        // 获得数据并清除临时字段
+                        var data = table.clearCacheKey(obj.data);
+                        // 当前示例配置项
+                        var options = obj.config;
+                        // 弹出面板
+                        obj.openPanel({
+                            list: function () {
+                                return [
+                                    '<li data-type="csv">导出当前页数据</li>',
+                                    '<li data-type="xlsx">导出全部数据</li>'
+                                ].join('')
+                            }()
+                            , done: function (panel, list) { // 操作列表
+                                list.on('click', function () {
+                                    var type = $(this).data('type')
+                                    if (type === 'csv') {
+                                        // 调用内置导出方法
+                                        table.exportFile(options.id, null, type);
+                                    } else if (type === 'xlsx') {
+
+                                        var param = laydtree.getNowParam(optionsTree);
+
+                                        $.ajax({
+                                            url: '/CarrierManage/RfidRecord/DoorAlarmExportExcel',
+                                            type: 'GET',
+                                            xhrFields: {
+                                                responseType: 'blob' // 重要：设置类型为blob，以便正确处理二进制文件
+                                            },
+                                            data: {
+                                                doc_name: $("#doc_name").val(),
+                                                start_time: $("#start_time").val(),
+                                                end_time: $("#end_time").val(),
+                                                binding_dept_id: param.nodeId
+                                            },
+                                            success: function (data) {
+
+                                                var blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                                                var url = window.URL.createObjectURL(blob);
+                                                var a = document.createElement('a');
+                                                a.style.display = 'none';
+                                                a.href = url;
+                                                a.download = '通道门报警记录.xlsx';
+                                                document.body.appendChild(a);
+                                                a.click();
+                                                window.URL.revokeObjectURL(url);
+
+                                            },
+                                            error: function (error) {
+                                                console.log(error);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                },
+                'print'
+            ],
+            cols: [[
+                //此处需修改
+                { type: "checkbox", width: 50, fixed: 'left' },
+                { field: 'doc_name', title: '载体名称', width: 160 },
+                {
+                    field: 'bindingType', title: '绑定类型', width: 120, sort: false, filter: false,
+                    templet: function (d) {//，0是未绑定，1是部门，2是人员
+                        if (d.bindingType == 0) {
+                            return "<span class='layui-btn layui-btn-normal layui-btn-xs'>未绑定</span>";
+                        } else if (d.bindingType == 1) {
+                            return "<span class='layui-btn layui-btn layui-btn-xs'>部门</span>";
+                        } else {
+                            return "<span class='layui-btn layui-btn layui-btn-xs'>人员</span>";
+                        }
+                    }
+                },
+                { field: 'bindingName', title: '绑定名称', width: 120 },
+                { field: 'EquipmentName', title: '设备名称', width: 120 },
+                { field: 'CreateTime', title: '报警时间', width: 160 },
+                {
+                    field: 'isOperation', title: '是否处理', width: 88,
+                    templet: function (d) {//，0是未绑定，1是部门，2是人员
+                        if (d.isOperation == 0) {
+                            return "<span class='layui-btn layui-btn-normal layui-btn-xs'>未处理</span>";
+                        } else if (d.isOperation == 1) {
+                            return "<span class='layui-btn layui-btn layui-btn-xs'>已处理</span>";
+                        } else {
+                            return "<span class='layui-btn layui-btn layui-btn-xs'>无记录</span>";
+                        }
+                    }
+                },
+                { title: '操作', toolbar: '#currentTableBar', align: "center", fixed: 'right' }
+            ]]
+        };
+        commonTable.rendertable(options);
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var param = laydtree.getNowParam(optionsTree);
+            //执行搜索重载
+            commonTable.reloadtable({
+                elem: 'currentTableId',
+                curr: 1,
+                where: { doc_name: data.field.doc_name, isOperation: data.field.isOperation, start_time: data.field.start_time, end_time: data.field.end_time, binding_dept_id: param.nodeId }
+            });
+            return false;
+        });
+        // 监听重置操作
+        form.on('submit(data-reset-btn)', function (data) {
+
+            $("#doc_name").val("");
+            $("#start_time").val("");
+            $("#end_time").val("");
+            layui.form.render("select");
+            options.where = {};
+            commonTable.reloadtable({ elem: 'currentTableId', where: options.where });
+            optionsTree.refreshTree();
+            return false;
+        });
+
+        wcLoading.close();
+        //行点击事件监听，控制按钮显示
+        var oneList = ["NF-edit", "NF-details"];//选择1条显示
+        var morerList = ["NF-delete", "NF-dispose"];//选中1条以上显示
+        commonTable.tableRowClick("checkbox", "currentTableFilter", "currentTableId", oneList, morerList);
+
+        //toolrow监听事件
+        table.on('tool(currentTableFilter)', function (obj) {
+            if (obj.event === 'delete') {
+                common.deleteForm({
+                    url: "/CarrierManage/RfidRecord/DeleteDoorAlarm",
+                    param: { DelIdS: obj.data.Alarmid },
+                    success: function () {
+                        obj.del();
+                    }
+                });
+            }
+            else if (obj.event === 'dispose') {
+                common.deleteForm({
+                    title: "报警信息处理",
+                    prompt: "您确定要处理该报警信息吗？",
+                    url: "/CarrierManage/RfidRecord/DoorAlarmDispose",
+                    param: { DelIdS: obj.data.Alarmid },
+                    success: function () {
+
+                    }
+                });
+            }
+            return false;
+        });
+    });
+</script>
+<div class="layui-fluid" style="padding:0 0px">
+    <div class="layui-card" style="margin-bottom: 0px; padding: 5px;">
+        <fieldset class="table-search-fieldset" id="searchField">
+            <legend>搜索信息</legend>
+            <div>
+                <form class="layui-form layui-form-pane">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">载体名称:</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="doc_name" name="doc_name" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label">报警时间：</label>
+                            <div class="layui-inline">
+                                <input type="text" id="start_time" name="start_time" maxlength="50" class="layui-input" placeholder="开始时间">
+                            </div>
+                            <span> - </span>
+                            <div class="layui-inline">
+                                <input type="text" id="end_time" name="end_time" maxlength="50" class="layui-input" placeholder="结束时间">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">是否处理:</label>
+                            <div class="layui-input-inline">
+                                <select id="isOperation" name="isOperation">
+                                    <option value="2" selected>所有</option>
+                                    <option value="0">未处理</option>
+                                    <option value="1">已处理</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+                            <button type="reset" class="layui-btn layui-btn-warning" lay-submit lay-filter="data-reset-btn"><i class="layui-icon">&#xe615;</i> 重 置</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+    </div>
+    <div class="layui-row layui-col-space5">
+        <div class="layui-col-md2 layui-col-xs3">
+            <div id="currentTableDiv" class="layui-card" style="padding: 5px;">
+                <fieldset class="table-search-fieldset " id="searchField">
+                    <legend>部门列表</legend>
+                    <ul id="currentTable" class="dtree" data-id="0"></ul>
+                </fieldset>
+            </div>
+        </div>
+        <div class="layui-col-md10 layui-col-xs9">
+            <div class="layui-card" style="padding: 5px;">
+                <script type="text/html" id="toolbarDemo">
+                    <div class="layui-btn-container" id="toolbar">
+                        <button id="NF-dispose" name="NF-dispose" authorize class="layui-btn layui-btn-sm layui-btn-danger layui-hide" lay-event="dispose"> <i class="layui-icon">&#xe642;</i>处理</button>
+                        <button id="NF-delete" name="NF-delete" authorize class="layui-btn layui-btn-sm layui-btn-danger layui-hide" lay-event="delete"> <i class="layui-icon">&#xe640;</i>删除</button>
+                    </div>
+                </script>
+                <script type="text/html" id="currentTableBar">
+                    <a id="NF-dispose" authorize class="layui-btn layui-btn-sm layui-btn-danger" lay-event="dispose"><i class="layui-icon">&#xe642;</i></a>
+                    <a id="NF-delete" authorize class="layui-btn layui-btn-sm layui-btn-danger" lay-event="delete"><i class="layui-icon">&#xe640;</i></a>
+
+                </script>
+                <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+            </div>
+        </div>
+    </div>
+</div>
+

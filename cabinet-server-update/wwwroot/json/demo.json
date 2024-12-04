@@ -1,0 +1,171 @@
+[
+  {
+    "id": "grid_2",
+    "index": 0,
+    "tag": "grid",
+    "span": 2,
+    "columns": [
+      {
+        "span": 12,
+        "list": [
+          {
+            "id": "input_3",
+            "index": 0,
+            "label": "用户",
+            "tag": "input",
+            "tagIcon": "input",
+            "placeholder": "请填写用户",
+            "defaultValue": null,
+            "labelWidth": 110,
+            "width": "100%",
+            "clearable": true,
+            "maxlength": null,
+            "showWordLimit": false,
+            "readonly": false,
+            "disabled": false,
+            "required": true,
+            "expression": "",
+            "document": ""
+          }
+        ]
+      },
+      {
+        "span": 12,
+        "list": [
+          {
+            "id": "password_4",
+            "index": 0,
+            "label": "密码框",
+            "tag": "password",
+            "tagIcon": "password",
+            "placeholder": "请输入密码",
+            "defaultValue": null,
+            "labelWidth": 110,
+            "width": "100%",
+            "clearable": true,
+            "maxlength": null,
+            "showWordLimit": false,
+            "readonly": false,
+            "disabled": false,
+            "required": true,
+            "document": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "grid_5",
+    "index": 1,
+    "tag": "grid",
+    "span": 2,
+    "columns": [
+      {
+        "span": 12,
+        "list": [
+          {
+            "id": "select_6",
+            "index": 0,
+            "label": "性别",
+            "tag": "select",
+            "tagIcon": "select",
+            "labelWidth": 110,
+            "width": "100%",
+            "disabled": false,
+            "required": true,
+            "document": "",
+            "datasourceType": "local",
+            "remoteUrl": "http://",
+            "remoteMethod": "post",
+            "remoteOptionText": "options.data.dictName",
+            "remoteOptionValue": "options.data.dictId",
+            "remoteDefaultValue": "12",
+            "options": [
+              {
+                "text": "男",
+                "value": "1",
+                "checked": true
+              },
+              {
+                "text": "女",
+                "value": "0",
+                "checked": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "span": 12,
+        "list": [
+          {
+            "id": "radio_8",
+            "index": 0,
+            "label": "单选组",
+            "tag": "radio",
+            "tagIcon": "radio",
+            "labelWidth": 110,
+            "disabled": false,
+            "document": "",
+            "datasourceType": "local",
+            "remoteUrl": "http://",
+            "remoteMethod": "post",
+            "remoteOptionText": "options.data.dictName",
+            "remoteOptionValue": "options.data.dictId",
+            "options": [
+              {
+                "text": "调休",
+                "value": "0",
+                "checked": true
+              },
+              {
+                "text": "事假",
+                "value": "1",
+                "checked": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dateRange_7",
+    "index": 2,
+    "label": "日期范围",
+    "tag": "dateRange",
+    "tagIcon": "dateRange",
+    "labelWidth": 110,
+    "dateRangeDefaultValue": "2022-01-06 17:12:52 - 2022-01-06 17:12:52",
+    "clearable": true,
+    "maxlength": null,
+    "datetype": "datetime",
+    "dateformat": "yyyy-MM-dd HH:mm:ss",
+    "isInitValue": true,
+    "dataMaxValue": "2088-12-31",
+    "dataMinValue": "1900-01-01",
+    "trigger": null,
+    "position": "absolute",
+    "theme": "default",
+    "mark": null,
+    "showBottom": true,
+    "zindex": 66666666,
+    "disabled": false,
+    "required": true,
+    "document": ""
+  },
+  {
+    "id": "textarea_9",
+    "index": 3,
+    "label": "说明",
+    "tag": "textarea",
+    "tagIcon": "textarea",
+    "placeholder": "请输入说明",
+    "defaultValue": null,
+    "width": "100%",
+    "readonly": false,
+    "disabled": false,
+    "required": true,
+    "document": ""
+  }
+]

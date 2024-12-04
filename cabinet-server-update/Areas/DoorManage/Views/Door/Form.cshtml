@@ -1,0 +1,190 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    layui.use(['jquery', 'form', 'laydate', 'common', 'optimizeSelectOption'], function () {
+        var form = layui.form,
+            $ = layui.$,
+            common = layui.common,
+            laydate = layui.laydate;
+        //权限字段
+        common.authorizeFields('adminform');
+        var keyValue = $.request("keyValue");
+        $(function () {
+
+            form.on('select(F_type)', function (data) {
+                var fid = data.value;
+                fidChange(fid);
+                form.render();//刷新select选择框渲染
+            });
+
+            if (keyValue != 0) {
+                initControl();
+                common.ajax({
+                    url: "/DoorManage/Door/GetFormJson",
+                    dataType: "json",
+                    data: { keyValue: keyValue },
+                    async: false,
+                    success: function (data) {
+                        common.val('adminform', data);
+                        if (data.type == 1) {
+                            $("#fid").empty();//清空
+                            $("#fid").append($("<option></option>").val("0").html("控制端"));
+                        }
+                    }
+                });
+            }
+            form.render();
+        });
+
+        function initControl() {
+            $("#fid").bindSelect({
+                url: "/DoorManage/Door/GetSelectJson",
+            });
+        }
+
+        function fidChange(fid) {
+            $("#fid").empty();//清空
+            $("#fid").append($("<option></option>").val("0").html("请选择控制端"));
+            if (fid == 1) {
+                $("#fid").empty();//清空
+                $("#fid").append($("<option></option>").val("0").html("控制端"));
+
+                $("#addressip").attr("lay-verify", "required");
+                $("#addressip_set").attr("required", "required");
+                
+                $("#fid").attr("disabled", "disabled");
+                $("#equipment_addr").attr("disabled", "disabled");
+                $("#equipment_Port").attr("disabled", "disabled");
+                $("#equipment_txidS").attr("disabled", "disabled");
+            }
+            if (fid == 2) {
+                $("#fid").bindSelect({
+                    url: "/DoorManage/Door/GetSelectJson",
+                });
+                $("#addressip").attr("disabled", "disabled");
+                $("#fid").removeAttr("disabled");
+                $("#addressip").removeAttr("lay-verify");
+
+                $("#equipment_addr").removeAttr("disabled");
+                $("#equipment_Port").removeAttr("disabled");
+                $("#equipment_txidSet").removeAttr("disabled");
+
+                $("#equipment_addr").attr("lay-verify", "required");
+                $("#equipment_Port").attr("lay-verify", "required");
+                $("#equipment_addrSet").attr("required", "required");
+                $("#equipment_PortSet").attr("required", "required");
+            }
+            form.render();//刷新select选择框渲染
+        }
+
+        form.verify({
+            required: function (value, item) {
+                var msg = "不能为空";
+                value = $.trim(value);
+                var isEmpty = !value || value.length < 1;
+                // 当前验证元素是select且为空时,将页面定位至layui渲染的select处，或自定义想定位的位置
+                if (item.tagName == 'SELECT' && isEmpty) {
+                    $("html").animate({
+                        scrollTop: $(item).siblings(".layui-form-select").offset().top - 74
+                    }, 50);
+                }
+                if (isEmpty) {
+                    return $(item).attr("placeholder") + msg;
+                }
+            }
+        })
+
+
+        wcLoading.close();
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            var postData = data.field;
+            common.submitForm({
+                url: "/DoorManage/Door/SubmitForm?keyValue=" + keyValue,
+                param: postData,
+                success: function () {
+                    common.parentreload("data-search-btn");
+                }
+            })
+            return false;
+        });
+    });
+</script>
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <div class="layui-form layuimini-form" lay-filter="adminform">
+
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">设备类型</label>
+                    <div class="layui-input-block">
+                        <select id="type" name="type" lay-verify="required" lay-filter="F_type" placeholder="设备类型">
+                            <option value="0" selected>==请选择==</option>
+                            <option value="1">控制端</option>
+                            <option value="2">设备端</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">控制端设备</label>
+                    <div class="layui-input-block">
+                        <select id="fid" name="fid" lay-verify="required" placeholder="控制端设备">
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">设备名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="equipment_name" name="equipment_name" maxlength="50" lay-verify="required" class="layui-input" placeholder="请输入设备名称">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide layui-form-text">
+                    <label class="layui-form-label" id="addressip_set">设备地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="addressip" name="addressip" maxlength="50" class="layui-input" placeholder="请输入设备地址">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label " id="equipment_addrSet">读取器IP地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="equipment_addr" name="equipment_addr" maxlength="50" class="layui-input" placeholder="请输入读取器IP">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide layui-form-text">
+                    <label class="layui-form-label " id="equipment_PortSet">读取器端口号</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="equipment_Port" name="equipment_Port" maxlength="50" class="layui-input" placeholder="请输入读取器端口号">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label ">读取器天线</label>
+                    <div class="layui-input-block" id="equipment_txidSet">
+                        <input lay-skin="primary" type="checkbox" id="equipment_txid1" name="equipment_txid1" value="1" title="天线1" />
+                        <input lay-skin="primary" type="checkbox" id="equipment_txid2" name="equipment_txid2" value="2" title="天线2" />
+                        <input lay-skin="primary" type="checkbox" id="equipment_txid3" name="equipment_txid3" value="3" title="天线3" />
+                        <input lay-skin="primary" type="checkbox" id="equipment_txid4" name="equipment_txid4" value="4" title="天线4" />
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide layui-form-text">
+                    <label class="layui-form-label ">备注</label>
+                    <div class="layui-input-block">
+                        <textarea id="remark" name="remark" class="layui-textarea" placeholder="请输入内容"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="status" id="status" checked="" value="true" title="状态">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-hide">
+                    <button class="layui-btn site-demo-active" lay-submit id="submit" lay-filter="saveBtn">确认保存</button>
+                </div>
+
+            </div>
+        </div>
+
+</body>

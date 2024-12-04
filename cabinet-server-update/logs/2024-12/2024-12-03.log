@@ -1,0 +1,273 @@
+2024-12-03 15:20:30
+程序启动
+ContentRootPath:/home/liqingshan/smart-cabinet/server
+WebRootPath:/home/liqingshan/smart-cabinet/server/wwwroot
+IsDevelopment:False
+
+
+2024-12-03 15:20:47
+程序启动
+ContentRootPath:/home/liqingshan/smart-cabinet/server
+WebRootPath:/home/liqingshan/smart-cabinet/server/wwwroot
+IsDevelopment:False
+
+
+2024-12-03 17:04:57
+程序启动
+ContentRootPath:/home/liqingshan/smart-cabinet/server
+WebRootPath:/home/liqingshan/smart-cabinet/server/wwwroot
+IsDevelopment:False
+
+
+2024-12-03 18:54:01
+程序异常
+1. 调试: >> 操作时间: 2024/12/3 下午6:54:01   操作人: administrator（超级管理员） 
+2. 地址: http://localhost:5000/CarrierManage/RfidRecord/AlarmGetGridJson?v=2024-12-03%2017:50:57&page=1&rows=10&Alarm_Type=1&time=2024-12-03%2018%3A54%3A01    
+3. 类名: WaterCloud.Web.Areas.CarrierManage.Controllers.RfidRecordController.AlarmGetGridJson (WaterCloud.Web) 
+4. 主机: localhost:5000   Ip  : 0.0.0.1 
+5. 异常: Unable to connect to any of the specified MySQL hosts.
+6. 来源: SqlSugar
+7. 实例:    at SqlSugar.MySqlProvider.GetScalarAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.MySqlProvider.GetScalarAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.QueryableProvider`1.GetCountAsync()
+   at SqlSugar.QueryableProvider`1.CountAsync()
+   at SqlSugar.QueryableProvider`1.ToPageListAsync(Int32 pageIndex, Int32 pageSize, RefAsync`1 totalNumber)
+   at WaterCloud.DataBase.SqlSugarExtensions.ToPageListAsync[T](ISugarQueryable`1 query, SoulPage`1 pagination) in F:\01 项目\netWeb\WaterCloud.Data\Extensions\SqlSugarExtensions.cs:line 39
+   at WaterCloud.Service.CarrierManage.RfidAlarmRecordService.GetLookList(SoulPage`1 pagination, RfidAlarmRecordEntity rfidAlarmRecordEntity) in F:\01 项目\netWeb\WaterCloud.Service\CarrierManage\RfidAlarmRecordService.cs:line 87
+   at WaterCloud.Web.Areas.CarrierManage.Controllers.RfidRecordController.AlarmGetGridJson(SoulPage`1 pagination, RfidAlarmRecordEntity rfidAlarmRecordEntity) in F:\01 项目\netWeb\WaterCloud.Web\Areas\CarrierManage\Controllers\RfidRecordController.cs:line 129
+   at lambda_method1273(Closure , Object )
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+2024-12-03 18:54:01
+程序异常
+1. 调试: >> 操作时间: 2024/12/3 下午6:54:01   操作人: administrator（超级管理员） 
+2. 地址: http://localhost:5000/SystemOrganize/Organize/GetDTreeJson    
+3. 类名: WaterCloud.Web.Areas.SystemOrganize.Controllers.OrganizeController.GetDTreeJson (WaterCloud.Web) 
+4. 主机: localhost:5000   Ip  : 0.0.0.1 
+5. 异常: Unable to connect to any of the specified MySQL hosts.
+6. 来源: SqlSugar
+7. 实例:    at SqlSugar.MySqlProvider.GetDataReaderAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.QueryableProvider`1.GetDataAsync[TResult](KeyValuePair`2 sqlObj)
+   at SqlSugar.QueryableProvider`1._ToListAsync[TResult]()
+   at WaterCloud.Service.SystemOrganize.OrganizeService.GetList() in F:\01 项目\netWeb\WaterCloud.Service\SystemOrganize\OrganizeService.cs:line 39
+   at WaterCloud.Web.Areas.SystemOrganize.Controllers.OrganizeController.GetDTreeJson() in F:\01 项目\netWeb\WaterCloud.Web\Areas\SystemOrganize\Controllers\OrganizeController.cs:line 73
+   at lambda_method1146(Closure , Object )
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+2024-12-03 18:54:02
+程序异常
+1. 调试: >> 操作时间: 2024/12/3 下午6:54:02   操作人: administrator（超级管理员） 
+2. 地址: http://localhost:5000/CarrierManage/RfidRecord/AlarmGetGridJson?v=2024-12-03%2017:50:57&page=1&rows=10&Alarm_Type=1&time=2024-12-03%2018%3A54%3A02    
+3. 类名: WaterCloud.Web.Areas.CarrierManage.Controllers.RfidRecordController.AlarmGetGridJson (WaterCloud.Web) 
+4. 主机: localhost:5000   Ip  : 0.0.0.1 
+5. 异常: Unable to connect to any of the specified MySQL hosts.
+6. 来源: SqlSugar
+7. 实例:    at SqlSugar.MySqlProvider.GetScalarAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.MySqlProvider.GetScalarAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.QueryableProvider`1.GetCountAsync()
+   at SqlSugar.QueryableProvider`1.CountAsync()
+   at SqlSugar.QueryableProvider`1.ToPageListAsync(Int32 pageIndex, Int32 pageSize, RefAsync`1 totalNumber)
+   at WaterCloud.DataBase.SqlSugarExtensions.ToPageListAsync[T](ISugarQueryable`1 query, SoulPage`1 pagination) in F:\01 项目\netWeb\WaterCloud.Data\Extensions\SqlSugarExtensions.cs:line 39
+   at WaterCloud.Service.CarrierManage.RfidAlarmRecordService.GetLookList(SoulPage`1 pagination, RfidAlarmRecordEntity rfidAlarmRecordEntity) in F:\01 项目\netWeb\WaterCloud.Service\CarrierManage\RfidAlarmRecordService.cs:line 87
+   at WaterCloud.Web.Areas.CarrierManage.Controllers.RfidRecordController.AlarmGetGridJson(SoulPage`1 pagination, RfidAlarmRecordEntity rfidAlarmRecordEntity) in F:\01 项目\netWeb\WaterCloud.Web\Areas\CarrierManage\Controllers\RfidRecordController.cs:line 129
+   at lambda_method1273(Closure , Object )
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+2024-12-03 18:54:02
+程序异常
+1. 调试: >> 操作时间: 2024/12/3 下午6:54:02   操作人: administrator（超级管理员） 
+2. 地址: http://localhost:5000/SystemOrganize/Organize/GetDTreeJson    
+3. 类名: WaterCloud.Web.Areas.SystemOrganize.Controllers.OrganizeController.GetDTreeJson (WaterCloud.Web) 
+4. 主机: localhost:5000   Ip  : 0.0.0.1 
+5. 异常: Unable to connect to any of the specified MySQL hosts.
+6. 来源: SqlSugar
+7. 实例:    at SqlSugar.MySqlProvider.GetDataReaderAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.QueryableProvider`1.GetDataAsync[TResult](KeyValuePair`2 sqlObj)
+   at SqlSugar.QueryableProvider`1._ToListAsync[TResult]()
+   at WaterCloud.Service.SystemOrganize.OrganizeService.GetList() in F:\01 项目\netWeb\WaterCloud.Service\SystemOrganize\OrganizeService.cs:line 39
+   at WaterCloud.Web.Areas.SystemOrganize.Controllers.OrganizeController.GetDTreeJson() in F:\01 项目\netWeb\WaterCloud.Web\Areas\SystemOrganize\Controllers\OrganizeController.cs:line 73
+   at lambda_method1146(Closure , Object )
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+2024-12-03 18:54:05
+程序异常
+1. 调试: >> 操作时间: 2024/12/3 下午6:54:05   操作人: administrator（超级管理员） 
+2. 地址: http://localhost:5000/Home/Index    
+3. 类名: WaterCloud.Web.Controllers.HomeController.Index (WaterCloud.Web) 
+4. 主机: localhost:5000   Ip  : 0.0.0.1 
+5. 异常: Unable to connect to any of the specified MySQL hosts.
+6. 来源: SqlSugar
+7. 实例:    at SqlSugar.MySqlProvider.GetDataReaderAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.QueryableProvider`1.GetDataAsync[TResult](KeyValuePair`2 sqlObj)
+   at SqlSugar.QueryableProvider`1._ToListAsync[TResult]()
+   at SqlSugar.QueryableProvider`1.InSingleAsync(Object pkValue)
+   at WaterCloud.DataBase.RepositoryBase`1.FindEntity(Object keyValue) in F:\01 项目\netWeb\WaterCloud.Data\Repository\RepositoryBase.cs:line 108
+   at WaterCloud.Service.SystemOrganize.SystemSetService.GetForm(String keyValue) in F:\01 项目\netWeb\WaterCloud.Service\SystemOrganize\SystemSetService.cs:line 90
+   at WaterCloud.Web.Controllers.HomeController.Index() in F:\01 项目\netWeb\WaterCloud.Web\Controllers\HomeController.cs:line 25
+   at lambda_method946(Closure , Object , Object[] )
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeNextActionFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+2024-12-03 18:54:29
+程序异常
+1. 调试: >> 操作时间: 2024/12/3 下午6:54:29   操作人: administrator（超级管理员） 
+2. 地址: http://localhost:5000/Login/GetListJsonByLogin?v=2024-12-03%2018:54:29    
+3. 类名: WaterCloud.Web.Controllers.LoginController.GetListJsonByLogin (WaterCloud.Web) 
+4. 主机: localhost:5000   Ip  : 0.0.0.1 
+5. 异常: Unable to connect to any of the specified MySQL hosts.
+6. 来源: SqlSugar
+7. 实例:    at SqlSugar.MySqlProvider.GetDataReaderAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.QueryableProvider`1.GetDataAsync[TResult](KeyValuePair`2 sqlObj)
+   at SqlSugar.QueryableProvider`1._ToListAsync[TResult]()
+   at WaterCloud.Service.SystemOrganize.SystemSetService.GetList(String keyword) in F:\01 项目\netWeb\WaterCloud.Service\SystemOrganize\SystemSetService.cs:line 40
+   at WaterCloud.Web.Controllers.LoginController.GetListJsonByLogin(String keyword) in F:\01 项目\netWeb\WaterCloud.Web\Controllers\LoginController.cs:line 62
+   at lambda_method848(Closure , Object )
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+2024-12-03 18:54:32
+程序异常
+1. 调试: >> 操作时间: 2024/12/3 下午6:54:32   操作人: administrator（超级管理员） 
+2. 地址: http://localhost:5000/Login/GetListJsonByLogin?v=2024-12-03%2018:54:32    
+3. 类名: WaterCloud.Web.Controllers.LoginController.GetListJsonByLogin (WaterCloud.Web) 
+4. 主机: localhost:5000   Ip  : 0.0.0.1 
+5. 异常: Unable to connect to any of the specified MySQL hosts.
+6. 来源: SqlSugar
+7. 实例:    at SqlSugar.MySqlProvider.GetDataReaderAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.QueryableProvider`1.GetDataAsync[TResult](KeyValuePair`2 sqlObj)
+   at SqlSugar.QueryableProvider`1._ToListAsync[TResult]()
+   at WaterCloud.Service.SystemOrganize.SystemSetService.GetList(String keyword) in F:\01 项目\netWeb\WaterCloud.Service\SystemOrganize\SystemSetService.cs:line 40
+   at WaterCloud.Web.Controllers.LoginController.GetListJsonByLogin(String keyword) in F:\01 项目\netWeb\WaterCloud.Web\Controllers\LoginController.cs:line 62
+   at lambda_method848(Closure , Object )
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+2024-12-03 18:54:42
+程序异常
+1. 调试: >> 操作时间: 2024/12/3 下午6:54:42   操作人: administrator（超级管理员） 
+2. 地址: http://localhost:5000/Login/GetListJsonByLogin?v=2024-12-03%2018:54:42    
+3. 类名: WaterCloud.Web.Controllers.LoginController.GetListJsonByLogin (WaterCloud.Web) 
+4. 主机: localhost:5000   Ip  : 0.0.0.1 
+5. 异常: Unable to connect to any of the specified MySQL hosts.
+6. 来源: SqlSugar
+7. 实例:    at SqlSugar.MySqlProvider.GetDataReaderAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.QueryableProvider`1.GetDataAsync[TResult](KeyValuePair`2 sqlObj)
+   at SqlSugar.QueryableProvider`1._ToListAsync[TResult]()
+   at WaterCloud.Service.SystemOrganize.SystemSetService.GetList(String keyword) in F:\01 项目\netWeb\WaterCloud.Service\SystemOrganize\SystemSetService.cs:line 40
+   at WaterCloud.Web.Controllers.LoginController.GetListJsonByLogin(String keyword) in F:\01 项目\netWeb\WaterCloud.Web\Controllers\LoginController.cs:line 62
+   at lambda_method848(Closure , Object )
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+2024-12-03 18:54:49
+程序异常
+1. 调试: >> 操作时间: 2024/12/3 下午6:54:49   操作人: administrator（超级管理员） 
+2. 地址: http://localhost:5000/Login/GetListJsonByLogin?v=2024-12-03%2018:54:49    
+3. 类名: WaterCloud.Web.Controllers.LoginController.GetListJsonByLogin (WaterCloud.Web) 
+4. 主机: localhost:5000   Ip  : 0.0.0.1 
+5. 异常: Unable to connect to any of the specified MySQL hosts.
+6. 来源: SqlSugar
+7. 实例:    at SqlSugar.MySqlProvider.GetDataReaderAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.QueryableProvider`1.GetDataAsync[TResult](KeyValuePair`2 sqlObj)
+   at SqlSugar.QueryableProvider`1._ToListAsync[TResult]()
+   at WaterCloud.Service.SystemOrganize.SystemSetService.GetList(String keyword) in F:\01 项目\netWeb\WaterCloud.Service\SystemOrganize\SystemSetService.cs:line 40
+   at WaterCloud.Web.Controllers.LoginController.GetListJsonByLogin(String keyword) in F:\01 项目\netWeb\WaterCloud.Web\Controllers\LoginController.cs:line 62
+   at lambda_method848(Closure , Object )
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+2024-12-03 18:57:00
+程序异常
+1. 调试: >> 操作时间: 2024/12/3 下午6:57:00   操作人: administrator（超级管理员） 
+2. 地址: http://localhost:5000/Login/GetListJsonByLogin?v=2024-12-03%2018:57:00    
+3. 类名: WaterCloud.Web.Controllers.LoginController.GetListJsonByLogin (WaterCloud.Web) 
+4. 主机: localhost:5000   Ip  : 0.0.0.1 
+5. 异常: Unable to connect to any of the specified MySQL hosts.
+6. 来源: SqlSugar
+7. 实例:    at SqlSugar.MySqlProvider.GetDataReaderAsync(String sql, SugarParameter[] parameters)
+   at SqlSugar.QueryableProvider`1.GetDataAsync[TResult](KeyValuePair`2 sqlObj)
+   at SqlSugar.QueryableProvider`1._ToListAsync[TResult]()
+   at WaterCloud.Service.SystemOrganize.SystemSetService.GetList(String keyword) in F:\01 项目\netWeb\WaterCloud.Service\SystemOrganize\SystemSetService.cs:line 40
+   at WaterCloud.Web.Controllers.LoginController.GetListJsonByLogin(String keyword) in F:\01 项目\netWeb\WaterCloud.Web\Controllers\LoginController.cs:line 62
+   at lambda_method848(Closure , Object )
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+-----------------------------------------------------------------------------------------------------------------------------
+
+

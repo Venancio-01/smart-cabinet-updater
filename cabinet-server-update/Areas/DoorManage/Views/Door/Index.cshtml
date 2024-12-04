@@ -1,0 +1,175 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    layui.use(['jquery', 'form', 'table', 'common', 'commonTable', 'optimizeSelectOption'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table,
+            commonTable = layui.commonTable,
+            common = layui.common;
+        //加载数据
+        wcLoading.close();
+        //权限控制(js是值传递)
+        currentTableBar.innerHTML = common.authorizeButtonNew(currentTableBar.innerHTML);
+        toolbarDemo.innerHTML = common.authorizeButtonNew(toolbarDemo.innerHTML);
+        var options = {
+            elem: '#currentTableId',
+            url: '/DoorManage/Door/GetTreeGridJson',
+            treeIdName: 'equipmentid',  // id字段名称
+            treePidName: 'fid',     // pid字段名称
+            cols: [[
+                { type: "radio", width: 50, fixed: 'left' },
+                { field: 'equipment_name', title: '设备名称', Width: 160, sort: false, filter: false },
+                { field: 'addressip', title: '设备地址', Width: 120, sort: false, filter: false },
+                {
+                    field: 'type', title: '设备类型', Width: 80, sort: false, filter: false,
+                    templet: function (d) {
+                        if (d.type == 1) {
+                            return "<span class='layui-btn layui-btn-normal layui-btn-xs'>控制端</span>";
+                        } else {
+                            return "<span class='layui-btn layui-btn layui-btn-xs'>设备端</span>";
+                        }
+                    }
+                },
+                {
+                    field: 'status', title: '状态', width: 80, sort: false, filter: false,
+                    templet: function (d) {
+                        if (d.status == 1) {
+                            return "<span class='layui-btn layui-btn-normal layui-btn-xs'>正常</span>";
+                        } else {
+                            return "<span class='layui-btn layui-btn-warm layui-btn-xs'>停用</span>";
+                        }
+                    }
+                },
+                { field: 'equipment_addr', title: '读取器IP地址', Width: 120, sort: false, filter: false },
+                { field: 'equipment_Port', title: '读取器端口号', Width: 80, sort: false, filter: false },
+                { field: 'equipment_txid', title: '读取器使用天线', Width: 120, sort: false, filter: false },
+                { field: 'remark', title: '备注', Width: 260, sort: false, filter: false },
+                { title: '操作', width: 175, toolbar: '#currentTableBar', align: "center", fixed: 'right' }
+            ]],
+        };
+        commonTable.rendertreetable(options);
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            queryJson = data.field.txt_keyword;
+            options.where = { keyword: queryJson };
+            commonTable.rendertreetable(options);
+            duty = null;
+            return false;
+        });
+        //行点击事件监听，控制按钮显示
+        var oneList = ["NF-edit", "NF-delete"];//选择1条显示
+        commonTable.tableRowClick("radio", "currentTableFilter", "currentTableId", oneList);
+        /**
+        * toolbar监听事件
+        */
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            var data = table.checkStatus('currentTableId').data;
+            var keyValue = data.length > 0 ? data[0].equipmentid : null;
+            var duty = data.length > 0 ? data[0] : null;
+            if (obj.event === 'add') {  // 监听操作
+                common.modalOpen({
+                    title: "新增通道门设备",
+                    url: "/DoorManage/Door/Form?event=add&keyValue=" + (!!keyValue ? keyValue : 0),
+                    width: "480px",
+                    height: "720px",
+                });
+            }
+            else if (obj.event === 'delete') {
+                if (duty == null) {
+                    common.modalMsg("未选中数据", "warning");
+                    return false;
+                }
+                common.deleteForm({
+                    url: "/DoorManage/Door/DeleteForm",
+                    param: { keyValue: keyValue },
+                    success: function () {
+                        common.reload('data-search-btn');
+                    }
+                });
+            }
+            else if (obj.event === 'edit') {
+                if (duty == null) {
+                    common.modalMsg("未选中数据", "warning");
+                    return false;
+                }
+                common.modalOpen({
+                    title: "编辑通道门设备数据",
+                    url: "/DoorManage/Door/Form?event=edit&keyValue=" + keyValue,
+                    width: "480px",
+                    height: "720px",
+                });
+            }
+            else if (obj.event === 'TABLE_SEARCH') {
+                var _that = $("#searchField");
+                if (_that.hasClass("layui-hide")) {
+                    _that.removeClass('layui-hide');
+                } else {
+                    _that.addClass('layui-hide');
+                }
+                table.resize();
+            }
+            return false;
+        });
+        table.on('tool(currentTableFilter)', function (obj) {
+            var keyValue = obj.data.equipmentid;
+            if (obj.event === 'delete') {
+                common.deleteForm({
+                    url: "/DoorManage/Door/DeleteForm",
+                    param: { keyValue: keyValue },
+                    success: function () {
+                        obj.del();
+                    }
+                });
+            }
+            else if (obj.event === 'edit') {
+                common.modalOpen({
+                    title: "编辑通道门设备数据",
+                    url: "/DoorManage/Door/Form?event=edit&keyValue=" + keyValue,
+                    width: "480px",
+                    height: "720px",
+                });
+            }
+            return false;
+        });
+    });
+</script>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <fieldset class="table-search-fieldset " id="searchField">
+            @*<legend>搜索信息</legend>*@
+            <div>
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">设备名称:</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="txt_keyword" name="txt_keyword" autocomplete="off" class="layui-input" placeholder="">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container" id="toolbar">
+                <button id="NF-add" name="NF-add" authorize class="layui-btn layui-btn-sm data-add-btn" lay-event="add"><i class="layui-icon">&#xe654;</i>新增通道门设备</button>
+                <button id="NF-edit" name="NF-edit" authorize class="layui-btn layui-btn-sm layui-btn-warm data-edit-btn layui-hide" lay-event="edit"><i class="layui-icon">&#xe642;</i>修改通道门设备数据</button>
+                <button id="NF-delete" name="NF-delete" authorize class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn layui-hide" lay-event="delete"> <i class="layui-icon">&#xe640;</i>删除</button>
+            </div>
+        </script>
+        <script type="text/html" id="currentTableBar">
+            <a id="NF-edit" authorize class="layui-btn layui-btn-sm" lay-event="edit"><i class="layui-icon">&#xe642;</i></a>
+            <a id="NF-delete" authorize class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"><i class="layui-icon">&#xe640;</i></a>
+            <a id="NF-details" authorize class="layui-btn layui-btn-sm layui-btn-normal data-info-btn" lay-event="details"><i class="layui-icon">&#xe60b;</i></a>
+        </script>
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+    </div>
+</div>

@@ -1,0 +1,83 @@
+﻿@{
+    ViewBag.Title = "Association.cshtml";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    layui.use(['jquery', 'form', 'laydate', 'dtree', 'common', 'optimizeSelectOption'], function () {
+        var form = layui.form,
+            $ = layui.$,
+            common = layui.common,
+            laydate = layui.laydate,
+            laydtree = layui.dtree;
+        //权限字段
+        common.authorizeFields('adminform');
+        var keyValue = $.request("CabinetID");
+        var Deptid = $.request("Deptid");
+        $(function () {
+            // 初始化树
+            var NFTree = laydtree.render({
+                elem: "#NF-Tree",
+                method: "GET",
+                width: "100%",
+                dataStyle: "layuiStyle",  //使用layui风格的数据格式
+                dataFormat: "list",  //配置data的风格为list
+                response: { message: "message", statusCode: 200 },  //修改response中返回数据的定义
+                scroll: "#toolbarDiv1", // 绑定div元素
+                ficon: ["2", "1"],
+                icon: "1",
+                url: "/SystemOrganize/Organize/GetDTreeDeptUserJson", // 使用url加载（可与data加载同时存在）
+                initLevel: "1",
+                type: "all", // 改为全量加载，即取消自动加载
+                done: function (res, $ul, first) {
+                    if (first) {
+                        laydtree.dataInit("NF-Tree", Deptid); // 初始化值
+                    }
+                }
+            });
+
+
+
+
+            //监听提交
+            form.on('submit(saveBtn)', function (data) {
+                var param = laydtree.getNowParam(NFTree);
+                if (param.nodeId === undefined) {
+                    layer.msg("请选择绑定");
+                    return false;
+                }
+                console.log(param)
+                console.log(keyValue)
+                common.submitForm({
+                    url: "/CabinetManage/CabinetDoor/SetDept",
+                    param: { "cabinetDoorID": keyValue, "bindingType": param.basicData, "bindingID": param.nodeId },
+                    success: function () {
+                        common.parentreload("data-search-btn");
+                    }
+                })
+                return false;
+            });
+
+        });
+
+        wcLoading.close();
+
+
+    });
+</script>
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <div class="layui-form layuimini-form" lay-filter="adminform">
+                <div class="layui-form-item ">
+                    <div style="height: 350px;overflow: auto;" id="toolbarDiv1">
+                        <ul id="NF-Tree" class="dtree" data-id="D0"></ul>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <button class="layui-btn site-demo-active" lay-submit id="submit" lay-filter="saveBtn">确认保存</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>

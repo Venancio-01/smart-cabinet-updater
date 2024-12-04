@@ -1,0 +1,237 @@
+﻿@{
+    ViewData["Title"] = "RegisterIndex";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    layui.use(['jquery', 'form', 'table', 'dtree', 'common', 'commonTable', 'optimizeSelectOption'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table,
+            commonTable = layui.commonTable,
+            laydtree = layui.dtree,
+            common = layui.common;
+        //加载数据
+        wcLoading.close();
+        //权限控制(js是值传递)
+        currentTableBar.innerHTML = common.authorizeButtonNew(currentTableBar.innerHTML);
+        toolbarDemo.innerHTML = common.authorizeButtonNew(toolbarDemo.innerHTML);
+
+
+        var serchHeight = parseInt(40 + ($(".table-search-fieldset").height() || 0));
+        // 初始化树
+        var optionsTree = laydtree.render({
+            elem: "#currentTable",
+            method: "GET",
+            height: 'full-' + serchHeight,
+            width: "100%",
+            dataStyle: "layuiStyle",  //使用layui风格的数据格式
+            //dataFormat: "list",  //配置data的风格为list
+            response: { message: "message", statusCode: 200 },  //修改response中返回数据的定义
+            scroll: "#currentTableDiv", // 绑定div元素
+            icon: "2",
+            url: "/SystemOrganize/Organize/GetDTreeJson", // 使用url加载（可与data加载同时存在）
+            initLevel: "3",
+            type: "all", // 改为全量加载，即取消自动加载
+        });
+
+        laydtree.on("node('currentTable')", function (obj) {
+            options.where = {
+                
+                doc_name: $("#carrier_name").val(),
+                doc_rfid: $("#carrier_rfid").val(),
+                Carrier_Deptid_ID: obj.param.nodeId
+            };
+            commonTable.reloadtable({elem: 'currentTableId',where:options.where});
+        });
+
+        laydtree.on("nodedblclick('currentTable')", function (obj) {
+            options.where = {
+                
+                doc_name: $("#carrier_name").val(),
+                doc_rfid: $("#carrier_rfid").val(),
+                Carrier_Deptid_ID: obj.param.nodeId
+            };
+            // console.log(obj.param); // 点击当前节点传递的参数
+            // console.log(obj.dom); // 当前节点的jquery对象
+            // console.log(obj.childParams); // 当前节点的所有子节点参数
+            // console.log(obj.parentParam); // 当前节点的父节点参数
+            commonTable.reloadtable({elem: 'currentTableId',where:options.where});
+        });
+
+
+        var options = {
+            elem: '#currentTableId',
+            url: '/CarrierManage/Carrier/GetRegisterGridJson',
+            defaultToolbar: [
+                'filter',
+                'print'
+            ],
+            cols: [[
+                { type: "radio", width: 50, fixed: 'left' },
+                { field: 'doc_name', title: '载体名称', width: 160, sort: false, filter: false },
+                {
+                    field: 'bindingType', title: '绑定类型', width: 88, sort: false, filter: false,
+                    templet: function (d) {//，0是未绑定，1是部门，2是人员
+                        if (d.bindingType == 0) {
+                            return "<span class='layui-btn layui-btn-normal layui-btn-xs'>未绑定</span>";
+                        } else if (d.bindingType == 1) {
+                            return "<span class='layui-btn layui-btn layui-btn-xs'>部门</span>";
+                        } else {
+                            return "<span class='layui-btn layui-btn layui-btn-xs'>人员</span>";
+                        }
+                    }
+                },
+                {
+                    field: 'bindingName', title: '绑定名称', width: 160, sort: false, filter: false
+                },
+                {
+                    field: 'doc_secret_level', title: '密级', width: 88, sort: false, filter: false,
+                    templet: function (d) {
+                        if (!!d.doc_secret_level) {
+                            return top.clients.dataItems["Classification"][d.doc_secret_level] == null ? "" : top.clients.dataItems["Classification"][d.doc_secret_level];
+                        }
+                    }
+                },
+                { field: 'CreatorTime', title: '申请时间', width: 160, sort: false, filter: false },
+                { field: 'start_time', title: '开始时间', width: 160, sort: false, filter: false },
+                { field: 'end_time', title: '结束时间', width: 160, sort: false, filter: false },
+                { field: 'applyUser', title: '申请人', width: 88, sort: false, filter: false },
+                { field: 'outaddress', title: '外出地点', width: 88, sort: false, filter: false },
+                { field: 'outreason', title: '外出原因', width: 88, sort: false, filter: false },
+                {
+                    field: 'state', title: '状态', width: 88, sort: false, filter: false,
+                    templet: function (d) {
+                        if (d.state == 0) {
+                            return "<span class='layui-btn layui-btn-normal layui-btn-xs'>待审批</span>";
+                        } else if (d.state == 1) {
+                            return "<span class='layui-btn layui-btn layui-btn-xs'>通过</span>";
+                        } else if (d.state == 2) {
+                            return "<span class='layui-btn layui-btn-danger layui-btn-xs'>拒绝</span>";
+                        }
+                    }
+                },
+                {
+                    title: '操作', width: 175, toolbar: '#currentTableBar', align: "center", fixed: 'right'
+                }
+            ]],
+        };
+        commonTable.rendertable(options);
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var param = laydtree.getNowParam(optionsTree);
+
+            options.where = { doc_name: data.field.carrier_name, doc_rfid: data.field.carrier_rfid, Carrier_Deptid_ID: param.nodeId };
+           commonTable.reloadtable({elem: 'currentTableId',where:options.where});
+            duty = null;
+            return false;
+        });
+        // 监听重置操作
+        form.on('submit(data-reset-btn)', function (data) {
+
+            $("#carrier_name").val("");
+            $("#carrier_rfid").val("");
+            options.where = {};
+            commonTable.reloadtable({elem: 'currentTableId',where:options.where});
+            optionsTree.refreshTree();
+            return false;
+        });
+
+        //行点击事件监听，控制按钮显示
+        var oneList = ["NF-cancel", "NF-adopt", "NF-refuse"];//选择1条显示
+        commonTable.tableRowClick("radio", "currentTableFilter", "currentTableId", oneList);
+
+        table.on('tool(currentTableFilter)', function (obj) {
+            var keyValue = obj.data.register_id;
+
+            if (obj.event === 'cancel') {
+                common.deleteForm({
+                    url: "/CarrierManage/Carrier/RegisterProcess",
+                    param: { register_id: obj.data.register_id, state: 0 },
+                    prompt: "确定要取消该条外出申请吗？",
+                    success: function () {
+                        common.reload('data-search-btn');
+                    }
+                });
+            }
+            else if (obj.event === 'adopt') {
+                common.deleteForm({
+                    url: "/CarrierManage/Carrier/RegisterProcess",
+                    param: { register_id: obj.data.register_id, state: 1 },
+                    prompt: "确定要通过该条外出申请吗？",
+                    success: function () {
+                        common.reload('data-search-btn');
+                    }
+                });
+            }
+            else if (obj.event === 'refuse') {
+                common.deleteForm({
+                    url: "/CarrierManage/Carrier/RegisterProcess",
+                    param: { register_id: obj.data.register_id, state: 2 },
+                    prompt: "确定要拒绝该条外出申请吗？",
+                    success: function () {
+                        common.reload('data-search-btn');
+                    }
+                });
+            }
+            return false;
+        });
+    });
+</script>
+<div class="layui-fluid" style="padding:0 0px">
+    <div class="layui-card" style="margin-bottom: 0px; padding: 5px;">
+        <fieldset class="table-search-fieldset " id="searchField">
+            <legend>搜索信息</legend>
+            <div>
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">文件名称:</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="carrier_name" name="carrier_name" autocomplete="off" class="layui-input" placeholder="">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">文件标签:</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="carrier_rfid" name="carrier_rfid" autocomplete="off" class="layui-input" placeholder="">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+                            <button type="reset" class="layui-btn layui-btn-warning" lay-submit lay-filter="data-reset-btn"><i class="layui-icon">&#xe615;</i> 重 置</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+    </div>
+    <div class="layui-row layui-col-space5">
+        <div class="layui-col-md2 layui-col-xs3">
+            <div id="currentTableDiv" class="layui-card" style="padding: 5px;">
+                <fieldset class="table-search-fieldset " id="searchField">
+                    <legend>部门列表</legend>
+                    <ul id="currentTable" class="dtree" data-id="0"></ul>
+                </fieldset>
+            </div>
+        </div>
+        <div class="layui-col-md10 layui-col-xs9">
+            <div class="layui-card" style="padding: 5px;">
+
+                <script type="text/html" id="toolbarDemo">
+                    <div class="layui-btn-container" id="toolbar">
+                    </div>
+                </script>
+                <script type="text/html" id="currentTableBar">
+                      {{#  if(d.state != 0){ }}
+                    <a id="NF-cancel" authorize class="layui-btn  layui-btn-sm" lay-event="cancel"><i class="fa fa-remove">取消审批</i></a>
+                        {{#  } else { }}
+                    <a id="NF-adopt"  authorize class="layui-btn layui-btn-success layui-btn-sm" lay-event="adopt"><i class="fa fa-check">通过</i></a>
+                    <a id="NF-refuse" authorize class="layui-btn layui-btn-danger  layui-btn-sm " lay-event="refuse"><i class="fa fa-remove">拒绝</i></a>
+                        {{#  } }}
+                </script>
+                <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+            </div>
+        </div>
+    </div>
+</div>
+

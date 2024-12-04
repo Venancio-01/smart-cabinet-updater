@@ -1,0 +1,268 @@
+﻿@{
+    ViewBag.Title = "CarrierForm";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    layui.use(['jquery', 'form', 'laydate', 'common', 'optimizeSelectOption', 'dtree'], function () {
+        var form = layui.form,
+            $ = layui.$,
+            common = layui.common,
+            laydate = layui.laydate,
+            laydtree = layui.dtree;
+        //权限字段
+        common.authorizeFields('adminform');
+        var keyValue = $.request("keyValue");
+        var bindingType;
+        $(function () {
+            initControl();
+            console.log(keyValue)
+            if (!!keyValue & keyValue != 0) {
+                common.ajax({
+                    url: "/CarrierManage/Carrier/GetFormJson",
+                    dataType: "json",
+                    data: { keyValue: keyValue },
+                    async: false,
+                    success: function (data) {
+                        common.val('adminform', data);
+                        bindingType = data.bindingType;
+                    }
+                });
+            }
+            form.render();
+        });
+
+        function initControl() {
+
+            $("#doc_secret_level").bindSelect({
+                data: top.clients.dataItems["Classification"],
+                id: '',
+            });
+            $("#carrier_type_id").bindSelect({
+                data: top.clients.dataItems["CarrierType"],
+                id: '',
+            });
+        }
+
+        wcLoading.close();
+        $("#bindingName").click(function () {
+            layer.open({
+                type: 1,  //type:0 也行
+                title: "选择所属（部门/人员）",
+                area: ["400px", "80%"],
+                content: '<ul id="NF-Tree" class="dtree" data-id="D0"></ul>',
+                btn: ['确认选择'],
+                success: function (layero, index) {
+                    var DTree = laydtree.render({
+                        elem: "#NF-Tree",
+                        method: "GET",
+                        width: "100%",
+                        dataStyle: "layuiStyle",  //使用layui风格的数据格式
+                        dataFormat: "list",  //配置data的风格为list
+                        response: { message: "message", statusCode: 200 },  //修改response中返回数据的定义
+                        ficon: ["2", "1"],
+                        icon: "1",
+                        url: "/SystemOrganize/Organize/GetDTreeDeptUserJson", // 使用url加载（可与data加载同时存在）
+                        initLevel: "1",
+                        type: "all", // 改为全量加载，即取消自动加载
+                        done: function (res, $ul, first) {
+                            if (first) {
+                                laydtree.dataInit("NF-Tree", bindingType); // 初始化值
+                            }
+                        }
+                    });
+
+                    // 绑定节点的双击
+                    laydtree.on("nodedblclick('NF-Tree')", function (obj) {
+
+                        $("#bindingName").val(obj.param.context);
+                        $("#bindingType").val(obj.param.basicData);
+                        $("#binding_id").val(obj.param.nodeId.substr(1, obj.param.nodeId.length - 1));
+                        $("#binding_dept_id").val(obj.param.parentId.substr(1, obj.param.parentId.length - 1));
+
+                        layer.close(index);
+                    });
+                },
+                yes: function (index, layero) {
+
+                    var param = laydtree.getNowParam("NF-Tree"); // 获取当前选中节点
+
+                    $("#bindingName").val(param.context);
+                    $("#bindingType").val(param.basicData);
+                    $("#binding_id").val(param.nodeId.substr(1, param.nodeId.length - 1));
+                    $("#binding_dept_id").val(param.parentId.substr(1, param.parentId.length - 1));
+
+                    layer.close(index);
+                }
+            });
+        });
+
+        //select验证
+        form.verify({
+            required: function (value, item) {
+                var msg = "不能为空";
+                value = $.trim(value);
+                var isEmpty = !value || value.length < 1;
+                // 当前验证元素是select且为空时,将页面定位至layui渲染的select处，或自定义想定位的位置
+                if (item.tagName == 'SELECT' && isEmpty) {
+                    $("html").animate({
+                        scrollTop: $(item).siblings(".layui-form-select").offset().top - 74
+                    }, 50);
+                }
+                if (isEmpty) {
+                    return $(item).attr("placeholder") + msg;
+                }
+            },
+            RfidReplicated: function (value, item) { //value：表单的值、item：表单的DOM对象
+                value = $.trim(value);
+                msg = "载体标签已被绑定";
+                var isEmpty = false;
+                if (!!value) {
+                    common.ajax({
+                        url: '/CarrierManage/Carrier/RfidReplicated',
+                        method: "POST",
+                        dataType: 'json',
+                        data: { Doc_id: keyValue, keyValue: value },
+                        async: false,
+                        success: function (data) {
+                            if (data <= 0) {
+                                isEmpty = true;
+                            }
+                        }
+                    })
+                }
+                if (!isEmpty) {
+                    return msg;
+                }
+            }
+        })
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            var postData = data.field;
+            var RfidCount = $('.rfidFindCount').length;
+            postData.doc_rfid = "";
+            for (var i = 0; i < $('.rfidFindCount').length; i++) {
+                var key = $('.rfidFindCount')[i].id;
+                var ID = key.substr(key.lastIndexOf("_") + 1);
+                var rfid = $("#doc_rfid" + ID).val();
+                if (!!postData.doc_rfid) {
+                    postData.doc_rfid = postData.doc_rfid + "," + rfid;
+                }
+                else {
+                    postData.doc_rfid = rfid;
+                }
+            }
+            postData.doc_id = keyValue;
+            common.submitForm({
+                url: "/CarrierManage/Carrier/SubmitForm?keyValue=" + keyValue,
+                param: postData,
+                success: function () {
+                    common.parentreload("data-search-btn");
+                }
+            })
+            return false;
+        });
+    });
+    var LastSum = 1;
+    function F_plus(data, Sum) {
+        var rfidelement = $('#' + $.trim(data));
+        var divSum = LastSum + 1;
+        if (divSum >= 6) {
+            layer.msg("载体标签已经达到上限！");
+            return;
+        }
+        LastSum = divSum;
+        var RFIDHtml = "";
+        RFIDHtml = RFIDHtml + '<div class="layui-inline rfidFindCount" id="doc_rfid_' + divSum + '" >  ';
+        RFIDHtml = RFIDHtml + ' <div class="layui-input-inline"> ';
+        RFIDHtml = RFIDHtml + '     <input type="text" id="doc_rfid' + divSum + '" name="doc_rfid' + divSum + '"  maxlength="50" lay-verify="required|RfidReplicated"  class="layui-input"  placeholder="载体标签"> ';
+        RFIDHtml = RFIDHtml + ' </div> ';
+        RFIDHtml = RFIDHtml + ' <div class="layui-form-mid" style="padding: 4px 0 !important">  ';
+        RFIDHtml = RFIDHtml + '     <a id="rfid_plus_1" authorize class="layui-btn layui-btn-sm layui-btn-primary" onclick="F_plus(\'RFID\', ' + divSum + ')" ><i class="fa fa-plus"></i></a>  ';
+        RFIDHtml = RFIDHtml + '     <a id="rfid_remove_1" authorize class="layui-btn layui-btn-sm layui-btn-primary" onclick="F_remove(\'doc_rfid_' + divSum + '\',' + divSum + ') "><i class="fa fa-remove"></i></a>  ';
+        RFIDHtml = RFIDHtml + ' </div>';
+        RFIDHtml = RFIDHtml + '</div>';
+
+        rfidelement.append(RFIDHtml);
+    }
+
+    function F_remove(data, Sum) {
+        if ($('.rfidFindCount').length > 1) {
+            var rfidelement = $('#' + $.trim(data));
+            rfidelement.remove();
+        }
+        else {
+            layer.msg("载体标签不能为空");
+        }
+
+    }
+
+
+</script>
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <div class="layui-form layuimini-form" lay-filter="adminform">
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">载体名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="doc_name" name="doc_name" maxlength="50" lay-verify="required" class="layui-input" placeholder="载体名称">
+                        <input type="hidden" id="Carrier_type" name="Carrier_type" maxlength="50" lay-verify="required" value="1" class="layui-hide">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">载体密级</label>
+                    <div class="layui-input-block">
+                        <select id="doc_secret_level" name="doc_secret_level" lay-verify="required" lay-filter="F_secret_level" placeholder="载体密级">
+                            <option value="">==请选择密级==</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">载体类型</label>
+                    <div class="layui-input-block">
+                        <select id="carrier_type_id" name="carrier_type_id" lay-verify="required" lay-filter="F_carrier_type" placeholder="载体类型">
+                            <option value="">==请选择类型==</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">载体标签</label>
+                    <div class="layui-input-block " id="RFID">
+                        <input type="text" id="doc_rfid" name="doc_rfid" maxlength="50" class="layui-input layui-hide rfidFind" placeholder="载体标签">
+                        <div class="layui-inline rfidFindCount" id="doc_rfid_1">
+                            <div class="layui-input-inline">
+                                <input type="text" id="doc_rfid1" name="doc_rfid1" maxlength="50" lay-verify="required|RfidReplicated" class="layui-input" placeholder="载体标签">
+                            </div>
+                            <div class="layui-form-mid" style="padding:4px 0  !important">
+                                <a id="rfid_plus_1" authorize class="layui-btn layui-btn-sm layui-btn-primary" onclick="F_plus('RFID',1)"><i class="fa fa-plus"></i></a>
+                                <a id="rfid_remove_1" authorize class="layui-btn layui-btn-sm layui-btn-primary" onclick="F_remove('doc_rfid_1',1)"><i class="fa fa-remove"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label required">所属（部门/人员）</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="bindingName" name="bindingName" maxlength="50" lay-filter="F_bindingType" class="layui-input" placeholder="请选择所属（部门/人员）">
+                        <input type="text" id="bindingType" name="bindingType" maxlength="50" class="layui-hide">
+                        <input type="text" id="binding_id" name="binding_id" maxlength="50" class="layui-hide" lay-verify="required" placeholder="所属（部门/人员）">
+                        <input type="text" id="binding_dept_id" name="binding_dept_id" maxlength="50" class="layui-hide">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-block">
+                        <textarea id="reamrk" name="reamrk" class="layui-textarea" placeholder="请输入备注"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-hide">
+                    <button class="layui-btn site-demo-active" lay-submit id="submit" lay-filter="saveBtn">确认保存</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
