@@ -1,6 +1,6 @@
 node_modules
 *.exe
-dist
+dist/
 *.log
 后台更新程序
 通道门更新程序
