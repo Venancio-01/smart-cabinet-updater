@@ -1,4 +1,4 @@
-import { createInterface } from 'node:readline';
+import { createInterface } from 'readline';
 
 // 获取用户输入
 export async function getUserInput(prompt: string): Promise<string> {

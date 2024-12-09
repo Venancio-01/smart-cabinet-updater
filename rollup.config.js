@@ -1,22 +1,29 @@
 import typescript from '@rollup/plugin-typescript';
-import resolve from '@rollup/plugin-node-resolve';
+import resolve, { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 
 export default {
   input: 'src/index.ts',
   output: {
-    file: 'dist/bundle.js',
+    file: 'dist/bundle.cjs',
     format: 'cjs',
     exports: 'auto'
   },
   plugins: [
+    nodeResolve({
+      preferBuiltins: true,
+      exportConditions: ['node']
+    }),
     typescript({
-      tsconfig: './tsconfig.json'
+      tsconfig: './tsconfig.json',
+      target: 'ES2019'
     }),
     resolve({
       preferBuiltins: true
     }),
-    commonjs()
+    commonjs({
+      ignoreDynamicRequires: true
+    }),
   ],
-  external: ['node:fs', 'node:path', 'node:url', 'ssh2', 'ssh2-sftp-client']
+  external: ['fs', 'path', 'url', 'ssh2', 'ssh2-sftp-client', 'process']
 };

@@ -1,6 +1,6 @@
-import { fileURLToPath } from "node:url";
+import { fileURLToPath } from "url";
 import { checkPathExists } from "./utils/file.js";
-import { handleAccessDoorUpdate, handleCabinetServerUpdate, handleSmartCabinetUpdate } from "./services/cabinetServer.js";
+import { handleAccessDoorUpdate, handleCabinetServerUpdate, handleSmartCabinetUpdate } from "./services/update.js";
 import { log } from "./utils/console.js";
 import { backendFolderPath, cabinetFolderPath, doorFolderPath, backgroundFolderPath } from "./utils/config.js";
 
@@ -82,15 +82,6 @@ async function main(): Promise<void> {
             process.stdin.setRawMode(false);
             process.stdin.removeListener("data", dataHandler);
             await handleAccessDoorUpdate();
-            process.exit(0);
-          }
-          break;
-        case "4":
-          if (updateOptions.some(opt => opt.startsWith("4."))) {
-            process.stdin.setRawMode(false);
-            process.stdin.removeListener("data", dataHandler);
-            // TODO: 实现背景图片替换功能
-            log.info("背景图片替换功能待实现");
             process.exit(0);
           }
           break;

@@ -3,10 +3,16 @@ import { SSHConfig } from './types.js';
 
 // SSH 配置
 export const cabinetSSHConfig: SSHConfig = {
-    host: 'liqingshan@192.168.70.1',
-    port: 2222,
-    remotePath: '/home/qingshan/'
+    host: 'user@192.168.8.2',
+    port: 22,
+    remotePath: '/home/user/smart-cabinet'
 };
+
+// export const cabinetSSHConfig: SSHConfig = {
+//     host: 'liqingshan@192.168.70.130',
+//     port: 22,
+//     remotePath: '/home/liqingshan/smart-cabinet'
+// };
 
 // 服务器 SSH 配置
 export const serverSSHConfig: SSHConfig = {
@@ -14,6 +20,13 @@ export const serverSSHConfig: SSHConfig = {
     port: 22,
     remotePath: '/opt/hjrich/smart-cabinet/cabinet-server-update'
 }; 
+
+// export const serverSSHConfig: SSHConfig = {
+//     host: 'liqingshan@192.168.70.130',
+//     port: 22,
+//     remotePath: '/home/liqingshan/smart-cabinet/cabinet-server-update'
+// }; 
+
 
 
 export const backendFolderPath = join(process.cwd(), "后台更新程序");

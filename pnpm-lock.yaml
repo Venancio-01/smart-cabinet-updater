@@ -18,8 +18,8 @@ importers:
         specifier: ^1.16.0
         version: 1.16.0
       ssh2-sftp-client:
-        specifier: ^11.0.0
-        version: 11.0.0
+        specifier: ^7.1.0
+        version: 7.1.0
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: ^28.0.1
@@ -915,9 +915,9 @@ packages:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
 
-  ssh2-sftp-client@11.0.0:
-    resolution: {integrity: sha512-lOjgNYtioYquhtgyHwPryFNhllkuENjvCKkUXo18w/Q4UpEffCnEUBfiOTlwFdKIhG1rhrOGnA6DeKPSF2CP6w==}
-    engines: {node: '>=18.20.4'}
+  ssh2-sftp-client@7.1.0:
+    resolution: {integrity: sha512-RyeBnutDAbIwmQrGO+MafKuXHkg2F6AMrdZtB7fbQdGm2c8AhPEY6hMwc41DKJlNtDcQCr2vaZlrBriu6xC5PA==}
+    engines: {node: '>=10.24.1'}
 
   ssh2@1.16.0:
     resolution: {integrity: sha512-r1X4KsBGedJqo7h8F5c4Ybpcr5RjyP+aWIG007uBPRjmdQWfEiVLzSK71Zji1B9sKxwaCvD8y8cwSkYrlLiRRg==}
@@ -1828,7 +1828,7 @@ snapshots:
 
   slash@3.0.0: {}
 
-  ssh2-sftp-client@11.0.0:
+  ssh2-sftp-client@7.1.0:
     dependencies:
       concat-stream: 2.0.0
       promise-retry: 2.0.1

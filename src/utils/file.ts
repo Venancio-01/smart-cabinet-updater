@@ -1,4 +1,4 @@
-import { existsSync, statSync, readdirSync } from "node:fs";
+import { existsSync, statSync, readdirSync } from "fs";
 import { log } from "./console.js";
 
 // 检查路径是否存在且有内容
