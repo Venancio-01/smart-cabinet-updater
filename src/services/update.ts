@@ -48,6 +48,7 @@ export async function handleCabinetServerUpdate(): Promise<void> {
   }
 }
 
+// 处理载体柜程序更新
 export async function handleSmartCabinetUpdate(): Promise<void> {
   log.info("开始更新载体柜程序...");
   try {
@@ -95,6 +96,7 @@ export async function handleSmartCabinetUpdate(): Promise<void> {
   }
 }
 
+// 处理通道门程序更新
 export async function handleAccessDoorUpdate(): Promise<void> {
   log.info("开始更新通道门程序...");
   try {

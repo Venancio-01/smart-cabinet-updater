@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { checkPathExists } from "./utils/file.js";
-import { handleAccessDoorUpdate, handleCabinetServerUpdate, handleSmartCabinetUpdate } from "./services/cabinetServer.js";
+import { handleAccessDoorUpdate, handleCabinetServerUpdate, handleSmartCabinetUpdate } from "./services/update.js";
 import { log } from "./utils/console.js";
 import { backendFolderPath, cabinetFolderPath, doorFolderPath, backgroundFolderPath } from "./utils/config.js";
 
