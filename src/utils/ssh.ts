@@ -12,11 +12,11 @@ import path from "path";
 const sshConnections: Map<string, { client: Client; password: string }> = new Map();
 
 export async function uploadFile(localPath: string, config: SSHConfig, password: string): Promise<void> {
-  const { host, remotePath, port } = config;
+  const { host, uploadPath, port } = config;
   const sftp = new SftpClient();
 
   try {
-    log.info(`正在上传 ${localPath} 到 ${host}:${remotePath}`);
+    log.info(`正在上传 ${localPath} 到 ${host}:${uploadPath}`);
 
     await sftp.connect({
       host: host.split("@")[1],
@@ -29,11 +29,11 @@ export async function uploadFile(localPath: string, config: SSHConfig, password:
 
     // 获取文件名
     const fileName = path.basename(localPath);
-    const remoteFilePath = `${remotePath}/${fileName}`;
+    const remoteFilePath = `${uploadPath}/${fileName}`;
 
     // 确保远程目录存在
     try {
-      await sftp.mkdir(remotePath, true);
+      await sftp.mkdir(uploadPath, true);
     } catch (mkdirError) {
       log.warning(`创建远程目录失败: ${mkdirError instanceof Error ? mkdirError.message : String(mkdirError)}`);
     }
@@ -80,11 +80,11 @@ export async function uploadFile(localPath: string, config: SSHConfig, password:
 }
 
 export async function uploadPath(localPath: string, config: SSHConfig, password: string): Promise<void> {
-  const { host, remotePath, port } = config;
+  const { host, uploadPath, port } = config;
   const sftp = new SftpClient();
 
   try {
-    log.info(`正在上传 ${localPath} 到 ${host}:${remotePath}`);
+    log.info(`正在上传 ${localPath} 到 ${host}:${uploadPath}`);
 
     // 计算本地文件的MD5
     const localMD5Map = await calculateDirMD5(localPath);
@@ -99,18 +99,18 @@ export async function uploadPath(localPath: string, config: SSHConfig, password:
     });
 
     try {
-      await sftp.mkdir(remotePath, true);
+      await sftp.mkdir(uploadPath, true);
     } catch (mkdirError) {
       log.warning(`创建远程目录失败: ${mkdirError instanceof Error ? mkdirError.message : String(mkdirError)}`);
     }
 
     // 上传文件
-    await sftp.uploadDir(localPath, remotePath);
+    await sftp.uploadDir(localPath, uploadPath);
 
     // 验证远程文件MD5
     log.info("正在验证文件完整性...");
     for (const [fileName, md5] of Object.entries(localMD5Map)) {
-      const remoteFilePath = `${remotePath}/${fileName}`;
+      const remoteFilePath = `${uploadPath}/${fileName}`;
       // 使用操作系统临时目录;
       const tempLocalPath = path.join(os.tmpdir(), fileName);
 

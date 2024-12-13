@@ -12,7 +12,7 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export async function handleCabinetServerUpdate(): Promise<void> {
   log.info("开始更新后台服务...");
   try {
-    const sudoPassword = await getUserInput("请输入管理员密码: ");
+    const sudoPassword = await getUserInput("请输入服务器管理员用户密码: ");
 
     // 1. 上传更新文件夹
     // 读取后台更新文件夹下的所有文件
@@ -31,7 +31,7 @@ export async function handleCabinetServerUpdate(): Promise<void> {
     log.success("Cabinet 服务已停止");
 
     // 3. 覆盖文件
-    const updateCommand = `echo "${sudoPassword}" | sudo -S cp -rf ${serverSSHConfig.remotePath}/* /opt/hjrich/cabinet-server/`;
+    const updateCommand = `echo "${sudoPassword}" | sudo -S cp -rf ${serverSSHConfig.uploadPath}/* ${serverSSHConfig.targetPath}/`;
     await executeSSHCommand(updateCommand, serverSSHConfig, sudoPassword);
     log.success("文件覆盖完成");
 
@@ -51,7 +51,7 @@ export async function handleCabinetServerUpdate(): Promise<void> {
     }
 
     // 7. 删除更新文件
-    await executeSSHCommand(`rm -rf ${serverSSHConfig.remotePath}`, serverSSHConfig, sudoPassword);
+    await executeSSHCommand(`rm -rf ${serverSSHConfig.uploadPath}`, serverSSHConfig, sudoPassword);
     log.success("更新文件已删除");
   } catch (error) {
     log.error("更新过程出错" + (error instanceof Error ? error.message : String(error)));
@@ -62,7 +62,7 @@ export async function handleCabinetServerUpdate(): Promise<void> {
 export async function handleSmartCabinetUpdate(): Promise<void> {
   log.info("开始更新载体柜程序...");
   try {
-    // 1. 查找并上传载体柜更新文件
+    // 查找并上传载体柜更新文件
     const smartCabinetPattern = /^smart_cabinet_\d+\.\d+\.\d+\.deb$/;
     const files = readdirSync(cabinetFolderPath);
     const smartCabinetUpdateFile = files.find(file => smartCabinetPattern.test(file));
@@ -71,23 +71,49 @@ export async function handleSmartCabinetUpdate(): Promise<void> {
       throw new Error("未找到载体柜更新文件");
     }
 
-    const sudoPassword = await getUserInput("请输入管理员密码: ");
+    const sudoPassword = await getUserInput("请输入载体柜管理员密码: ");
 
     const localPath = join(cabinetFolderPath, smartCabinetUpdateFile);
     await uploadFile(localPath, cabinetSSHConfig, sudoPassword);
     log.success("更新文件上传完成");
 
-    // 2. 执行更新命令
-    await executeSSHCommand(`cd ${cabinetSSHConfig.remotePath} && echo "${sudoPassword}" | sudo -S dpkg -i ${smartCabinetUpdateFile}`, cabinetSSHConfig, sudoPassword);
+    // 结束载体柜程序进程
+    try {
+      await executeSSHCommand(`pkill -f /opt/smart-cabinet`, cabinetSSHConfig, sudoPassword);
+      log.success("载体柜程序已停止");
+    } catch (error) {
+      // 如果进程不存在，继续执行
+      log.warning("载体柜程序可能未在运行");
+    }
+
+    // 结束指纹进程
+    try {
+      await executeSSHCommand(`pkill -f finger_server`, cabinetSSHConfig, sudoPassword);
+      log.success("指纹进程已停止");
+    } catch (error) {
+      // 如果进程不存在，继续执行
+      log.warning("指纹进程可能未在运行");
+    }
+
+    // 执行更新命令
+    await executeSSHCommand(`cd ${cabinetSSHConfig.uploadPath} && echo "${sudoPassword}" | sudo -S dpkg -i ${smartCabinetUpdateFile}`, cabinetSSHConfig, sudoPassword);
     log.success("载体柜更新完成");
 
-    // 3. 删除更新文件
-    await executeSSHCommand(`rm -rf ${cabinetSSHConfig.remotePath}${smartCabinetUpdateFile}`, cabinetSSHConfig, sudoPassword);
+    // 删除更新文件
+    await executeSSHCommand(`rm -rf ${cabinetSSHConfig.uploadPath}${smartCabinetUpdateFile}`, cabinetSSHConfig, sudoPassword);
     log.success("更新文件已删除");
 
-    // 4.延时重启电脑（2秒后）
-    await executeSSHCommand(`echo "${sudoPassword}" | sudo -S bash -c "sleep 2 && reboot"`, cabinetSSHConfig, sudoPassword);
+    // 给指纹服务赋权
+    await executeSSHCommand(`echo "${sudoPassword}" | sudo -S chown root:root /opt/smart-cabinet/resources/bin/finger_server`, cabinetSSHConfig, sudoPassword);
+    await executeSSHCommand(`echo "${sudoPassword}" | sudo -S chmod u+s /opt/smart-cabinet/resources/bin/finger_server`, cabinetSSHConfig, sudoPassword);
+
+    // 延时重启电脑（2秒后）
+    await executeSSHCommand(`echo "${sudoPassword}" | sudo -S bash -c "sleep 2 && reboot"`, cabinetSSHConfig, sudoPassword).catch(() => {
+      // 忽略错误
+    });
+
     log.success("电脑将在 2 秒后重启");
+    
   } catch (error) {
     log.error("更新过程出错" + (error instanceof Error ? error.message : String(error)));
     throw error;
@@ -97,7 +123,7 @@ export async function handleSmartCabinetUpdate(): Promise<void> {
 export async function handleAccessDoorUpdate(): Promise<void> {
   log.info("开始更新通道门程序...");
   try {
-    // 1. 查找并上传通道门更新文件
+    // 查找并上传通道门更新文件
     const accessDoorPattern = /^access_door_\d+\.\d+\.\d+\.deb$/;
     const files = readdirSync(doorFolderPath);
     const accessDoorUpdateFile = files.find(file => accessDoorPattern.test(file));
@@ -106,22 +132,43 @@ export async function handleAccessDoorUpdate(): Promise<void> {
       throw new Error("未找到通道门更新文件");
     }
 
-    const sudoPassword = await getUserInput("请输入管理员密码: ");
+    const sudoPassword = await getUserInput("请输入通道门管理员密码: ");
 
     const localPath = join(doorFolderPath, accessDoorUpdateFile);
     await uploadFile(localPath, cabinetSSHConfig, sudoPassword);
     log.success("更新文件上传完成");
 
-    // 2. 执行更新命令
-    await executeSSHCommand(`cd ${cabinetSSHConfig.remotePath} && echo "${sudoPassword}" | sudo -S dpkg -i ${accessDoorUpdateFile}`, cabinetSSHConfig, sudoPassword);
+    // 结束通道门程序进程
+    try {
+      await executeSSHCommand(`pkill -f /opt/access-door`, cabinetSSHConfig, sudoPassword);
+      log.success("通道门程序已停止");
+    } catch (error) {
+      // 如果进程不存在，继续执行
+      log.warning("通道门程序可能未在运行");
+    }
+
+    // 结束摄像头进程
+    try {
+      await executeSSHCommand(`pkill -f camera_server`, cabinetSSHConfig, sudoPassword);
+      log.success("摄像头进程已停止");
+    } catch (error) {
+      // 如果进程不存在，继续执行
+      log.warning("摄像头进程可能未在运行");
+    }
+
+    // 执行更新命令
+    await executeSSHCommand(`cd ${cabinetSSHConfig.uploadPath} && echo "${sudoPassword}" | sudo -S dpkg -i ${accessDoorUpdateFile}`, cabinetSSHConfig, sudoPassword);
     log.success("通道门更新完成");
 
-    // 3. 删除更新文件
-    await executeSSHCommand(`rm -rf ${cabinetSSHConfig.remotePath}${accessDoorUpdateFile}`, cabinetSSHConfig, sudoPassword);
+    // 删除更新文件
+    await executeSSHCommand(`rm -rf ${cabinetSSHConfig.uploadPath}${accessDoorUpdateFile}`, cabinetSSHConfig, sudoPassword);
     log.success("更新文件已删除");
 
-    // 4.延时重启电脑（2秒后）
-    await executeSSHCommand(`echo "${sudoPassword}" | sudo -S bash -c "sleep 2 && reboot"`, cabinetSSHConfig, sudoPassword);
+    // 延时重启电脑（2秒后）
+    executeSSHCommand(`echo "${sudoPassword}" | sudo -S bash -c "sleep 2 && reboot"`, cabinetSSHConfig, sudoPassword).catch(() => {
+      // 忽略错误
+    });
+
     log.success("电脑将在 2 秒后重启");
   } catch (error) {
     log.error("更新过程出错" + (error instanceof Error ? error.message : String(error)));
