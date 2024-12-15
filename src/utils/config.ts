@@ -1,28 +1,22 @@
 import { join } from 'path';
-import { readFileSync } from 'fs';
 import { SSHConfig } from './types.js';
 
-// 读取配置文件
-let config;
-try {
-  const configPath = join(process.cwd(), 'config.json');
-  config = JSON.parse(readFileSync(configPath, 'utf-8'));
-  console.log(configPath);
-} catch (error) {
-  throw new Error(`配置文件读取失败: ${error instanceof Error ? error.message : String(error)}`);
-}
-
-// 检查配置项是否存在
-if (!config.cabinetSSHConfig || !config.serverSSHConfig || !config.paths) {
-  throw new Error('配置文件缺少必要的配置项');
-}
-
 // SSH 配置
-export const cabinetSSHConfig: SSHConfig = config.cabinetSSHConfig;
-export const serverSSHConfig: SSHConfig = config.serverSSHConfig;
+export const cabinetSSHConfig: SSHConfig = {
+  host: "user@192.168.8.2",
+  port: 22,
+  uploadPath: "/home/user/smart-cabinet"
+};
+
+export const serverSSHConfig: SSHConfig = {
+  host: "root@192.168.1.50", 
+  port: 22,
+  uploadPath: "/opt/hjrich/smart-cabinet/cabinet-server-update",
+  targetPath: "/opt/hjrich/cabinet-server"
+};
 
 // 路径配置
-export const backendFolderPath = join(process.cwd(), config.paths.backendFolderPath);
-export const cabinetFolderPath = join(process.cwd(), config.paths.cabinetFolderPath);
-export const doorFolderPath = join(process.cwd(), config.paths.doorFolderPath);
-export const backgroundFolderPath = join(process.cwd(), config.paths.backgroundFolderPath);
+export const backendFolderPath = join(process.cwd(), "后台更新程序");
+export const cabinetFolderPath = join(process.cwd(), "载体柜更新程序");
+export const doorFolderPath = join(process.cwd(), "通道门更新程序");
+export const backgroundFolderPath = join(process.cwd(), "载体柜程序背景图片");
