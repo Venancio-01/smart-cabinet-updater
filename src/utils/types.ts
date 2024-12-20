@@ -1,6 +1,6 @@
 export interface SSHConfig {
-    host: string;
-    port: number;
-    uploadPath: string;
-    targetPath?: string;
-} 
+  host: string
+  port: number
+  uploadPath: string
+  targetPath?: string
+}

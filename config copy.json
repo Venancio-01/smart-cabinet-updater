@@ -5,10 +5,10 @@
     "uploadPath": "/home/liqingshan/smart-cabinet"
   },
   "serverSSHConfig": {
-    "host": "liqingshan@192.168.70.143",
+    "host": "root@192.168.1.50",
     "port": 22,
-    "uploadPath": "/home/liqingshan/smart-cabinet",
-    "targetPath": "/home/liqingshan/smart-cabinet/lintong-cabinet-server"
+    "uploadPath": "/opt/hjrich/smart-cabinet",
+    "targetPath": "/opt/hjrich/cabinet-server"
   },
   "paths": {
     "backendFolderPath": "后台更新程序",
