@@ -5,7 +5,7 @@
     "uploadPath": "/home/liqingshan/smart-cabinet"
   },
   "serverSSHConfig": {
-    "host": "liqingshan@192.168.70.143",
+    "host": "liqingshan@192.168.70.128",
     "port": 22,
     "uploadPath": "/home/liqingshan/smart-cabinet",
     "targetPath": "/home/liqingshan/smart-cabinet/lintong-cabinet-server"

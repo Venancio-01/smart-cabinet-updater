@@ -2,16 +2,18 @@
   "cabinetSSHConfig": {
     "host": "user@192.168.8.2",
     "port": 22,
-    "remotePath": "/home/user/smart-cabinet"
+    "uploadPath": "/home/user/smart-cabinet"
   },
   "serverSSHConfig": {
-    "host": "root@192.168.1.50",
+    "host": "root@192.168.8.2",
     "port": 22,
-    "remotePath": "/opt/hjrich/smart-cabinet/cabinet-server-update"
+    "uploadPath": "/root/hjrich/smart-cabinet",
+    "targetPath": "/root/hjrich/smart-cabinet/cabinet-server"
   },
   "paths": {
     "backendFolderPath": "后台更新程序",
     "cabinetFolderPath": "载体柜更新程序",
-    "doorFolderPath": "通道门更新程序"
+    "doorFolderPath": "通道门更新程序",
+    "databaseFolderPath": "数据库更新程序"
   }
 }

@@ -402,3 +402,42 @@ EOF'`
     throw error
   }
 }
+
+export async function handleDoorConfigUpdate(): Promise<void> {
+  log.info('开始修改通道门配置...')
+  try {
+    const sudoPassword = await getUserInput('请输入通道门管理员密码: ')
+
+    // 结束通道门程序进程
+    try {
+      await executeSSHCommand(`pkill -f /opt/access-door`, cabinetSSHConfig, sudoPassword)
+      log.success('通道门程序已停止')
+    }
+    catch (error) {
+      console.log('🚀 - handleDoorConfigUpdate - error:', error)
+      // 如果进程不存在，继续执行
+      log.warning('通道门程序可能未在运行')
+    }
+
+    // 修改通道门配置
+    try {
+      await executeSSHCommand(`echo "${sudoPassword}" | sudo -S sed -i 's/3306/9306/g' /opt/access-door/resources/.env.production`, serverSSHConfig, sudoPassword)
+      log.success('通道门配置修改完成')
+    }
+    catch (error) {
+      console.log('通道门配置修改失败', error)
+      log.warning('通道门配置可能已存在')
+    }
+
+    // 延时重启电脑（2秒后）
+    await executeSSHCommand(`echo "${sudoPassword}" | sudo -S bash -c "sleep 2 && reboot"`, cabinetSSHConfig, sudoPassword).catch(() => {
+      // 忽略错误
+    })
+
+    log.success('电脑将在 2 秒后重启')
+  }
+  catch (error) {
+    log.error(`更新过程出错${error instanceof Error ? error.message : String(error)}`)
+    throw error
+  }
+}

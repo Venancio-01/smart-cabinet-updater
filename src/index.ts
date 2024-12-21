@@ -71,6 +71,14 @@ async function showMenu(updateOptions: string[]): Promise<void> {
           showMenu(updateOptions) // 更新完成后重新显示菜单
         }
         break
+      case '5':
+        if (updateOptions.some(opt => opt.startsWith('5.'))) {
+          process.stdin.setRawMode(false)
+          process.stdin.removeListener('data', dataHandler)
+          await handleDoorConfigUpdate()
+          showMenu(updateOptions) // 更新完成后重新显示菜单
+        }
+        break
       case '\u0003': // Ctrl+C
       case '\u001B': // ESC
         log.success('\n程序已退出')
@@ -100,6 +108,8 @@ async function main(): Promise<void> {
     if (checkPathExists(databaseFolderPath)) {
       updateOptions.push('4. 重装数据库')
     }
+
+    updateOptions.push('5. 修改通道门配置')
 
     if (updateOptions.length === 0) {
       log.info('未检测到任何更新文件')

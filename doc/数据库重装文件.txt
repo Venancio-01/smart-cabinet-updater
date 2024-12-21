@@ -1,0 +1,70 @@
+MySQL 数据库重装文档
+===================
+
+重装步骤
+--------
+
+1. 准备工作
+   * MySQL 8.x 安装包（已传到服务器，具体路径可以问一下余班长）
+
+2. 数据备份
+   备份命令：
+   sudo /usr/local/mysql/bin/mysqldump -S /mysql/data/mysql.sock -uroot -p123456 --all-databases --single-transaction --flush-logs --master-data=2 --set-gtid-purged=OFF > /root/hjrich/mysql-backup.sql
+
+3. 停止当前运行的 MySQL 服务
+   停止命令：
+   sudo service mysql.server stop
+
+4. 清理旧数据
+   删除命令：
+   sudo rm -rf /usr/local/mysql*
+   sudo rm -rf /mysql
+   sudo rm -f /etc/systemd/system/mysql*
+
+5. 用户和目录配置
+   创建目录和设置权限命令：
+   sudo mkdir -p /mysql/data /mysql/binlog
+   sudo chown -R mysql:mysql /mysql/data /mysql/binlog
+   sudo chmod -R 777 /mysql/data /mysql/binlog
+
+6. 安装 MySQL
+   解压和创建软链接命令：
+   cd /usr/local
+   sudo tar xf mysql-8.x.x.tar.gz
+   sudo ln -sf mysql-8* mysql
+
+   复制启动脚本命令：
+   sudo cp /usr/local/mysql/support-files/mysql.server /etc/init.d/
+   sudo chmod +x /etc/init.d/mysql.server
+
+7. 配置 MySQL
+   * 创建配置文件 /etc/my.cnf
+
+   复制配置文件命令：
+   sudo cp ./my.cnf /etc/my.cnf
+
+8. 初始化和启动
+   初始化命令：
+   sudo /usr/local/mysql/bin/mysqld --defaults-file=/etc/my.cnf --initialize-insecure
+
+   启动服务命令：
+   sudo service mysql.server start
+
+   设置开机自启动命令：
+   sudo systemctl enable mysql.server
+
+9. 数据恢复
+   导入数据命令：
+   sudo /usr/local/mysql/bin/mysql -S /mysql/data/mysql.sock -u root < mysql-backup.sql
+
+   修改配置文件端口命令：
+   sudo sed -i 's/3306/9306/g' /root/hjrich/cabinet-server/appsettings.json
+
+   重启后台服务命令：
+   sudo systemctl restart Cabinet.service
+
+10. 修改广告机程序配置
+   修改文件命令：
+   sudo sed -i 's/3306/9306/g' /opt/access-door/resources/.env.production
+
+11. 重启广告机 
